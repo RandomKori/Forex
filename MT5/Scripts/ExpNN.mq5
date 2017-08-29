@@ -1,5 +1,6 @@
 //+------------------------------------------------------------------+
 //|                                                        ExpNN.mq5 |
+//|                        Copyright 2017, MetaQuotes Software Corp. |
 //|                                             https://www.mql5.com |
 //+------------------------------------------------------------------+
 #property copyright "Copyright 2017, MetaQuotes Software Corp."
@@ -30,7 +31,7 @@ void OnStart()
     ArrayResize(his,limit+16);
     CopyRates(Symbol(),Period(),0,limit,his);
     int tr=(int)(limit*Split);
-    int ot=FileOpen("train.txt",FILE_WRITE|FILE_UNICODE);
+    int ot=FileOpen("train.txt",FILE_WRITE|FILE_TXT,0,CP_UTF8);
     for(int i=15;i<tr;i++)
     {
       string d="|Input ";
@@ -48,7 +49,7 @@ void OnStart()
       FileWrite(ot,d);
     }
     FileClose(ot);
-    ot=FileOpen("test.txt",FILE_WRITE|FILE_UNICODE);
+    ot=FileOpen("test.txt",FILE_WRITE|FILE_TXT,0,CP_UTF8);
     for(int i=tr;i<limit;i++)
     {
       string d="|Input ";
