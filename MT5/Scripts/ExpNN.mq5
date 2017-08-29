@@ -28,7 +28,7 @@ void OnStart()
     CopyBuffer(h,1,0,limit,zh);
     CopyBuffer(h,2,0,limit,zl);
     MqlRates his[];
-    ArrayResize(his,limit+16);
+    ArrayResize(his,limit);
     CopyRates(Symbol(),Period(),0,limit,his);
     int tr=(int)(limit*Split);
     int ot=FileOpen("train.txt",FILE_WRITE|FILE_TXT,0,CP_UTF8);
