@@ -1,12 +1,14 @@
+from __future__ import print_function
+import numpy as np
 import cntk
 
-def LoadData(fn):
+def LoadData(fn,is_training):
     n=".\\Data\\"+fn
     datainp=cntk.io.StreamDef("Input",45)
     dataout=cntk.io.StreamDef("Label",3)
-    dataall=cntk.io.StreamDefs(Label=dataout,Input=datainp)
+    dataall=cntk.io.StreamDefs(labels=dataout,features=datainp)
     st=cntk.io.CTFDeserializer(n,dataall)
-    rez=cntk.io.MinibatchSource(st)
+    rez=cntk.io.MinibatchSource(st,randomize = is_training,max_sweeps = cntk.io.INFINITELY_REPEAT if is_training else 1)
     return rez
 
 def nn(x):
@@ -44,8 +46,8 @@ def train(net,streamf):
     learner=cntk.sgd(net.parameters,lr_schedule)
     trainer=cntk.Trainer(net,(loss,label_error),[learner])
     input_map={
-    label: streamf.streams.Label,
-    input: streamf.streams.Input
+    label: streamf.streams.labels,
+    input: streamf.streams.features
     }
     minibatch_size = 64
     num_samples_per_sweep = 60000
@@ -59,7 +61,7 @@ def train(net,streamf):
             break
     return
 
-data=LoadData("train.txt")
+data=LoadData("train.txt",True)
 x=cntk.input_variable(45)
 net=nn(x)
 train(net,data)
