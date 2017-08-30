@@ -9,5 +9,22 @@ def LoadData(fn):
     rez=cntk.io.MinibatchSource(st)
     return rez
 
+def nn():
+    m=cntk.layers.Dense(100,activation=cntk.tanh)
+    m=cntk.layers.Dense(100,activation=cntk.tanh)
+    m=cntk.layers.Dense(100,activation=cntk.tanh)
+    m=cntk.layers.Dense(100,activation=cntk.tanh)
+    m=cntk.layers.Dense(100,activation=cntk.tanh)
+    m=cntk.layers.Dense(100,activation=cntk.tanh)
+    m=cntk.layers.Dense(100,activation=cntk.tanh)
+    m=cntk.layers.Dense(100,activation=cntk.tanh)
+    m=cntk.layers.Dense(100,activation=cntk.tanh)
+    m=cntk.layers.Dense(100,activation=cntk.tanh)
+    m=cntk.layers.Dense(3,activation=cntk.softmax)
+    return m
+
 data=LoadData("train.txt")
+print(data.streams.items())
+net=nn()
 g=input("Нажмите любую клавишу")
+
