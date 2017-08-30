@@ -34,7 +34,7 @@ def train(streamf):
     }
     training_progress_output_freq = 500
     minibatch_size = 1
-    num_samples_per_sweep = 10000
+    num_samples_per_sweep = 10
     for i in range(0,num_samples_per_sweep):
         dat1=streamf.next_minibatch(minibatch_size,input_map = input_map)
         trainer.train_minibatch(dat1)
@@ -45,8 +45,23 @@ def train(streamf):
             break
     return trainer
 
+def test(streamf,trainer):
+    input_var = cntk.input_variable(45)
+    label_var=cntk.input_variable(3)
+    input_map={
+        input_var : streamf.streams.features,
+        label_var : streamf.streams.labels
+    }
+    test_minibatch_size=1
+    dat=streamf.next_minibatch(test_minibatch_size,input_map=input_map)
+    eval_error=trainer.test_minibatch(dat)
+    print("Average test error: {0:.2f}%".format(eval_error*100))
+    return
+
 data=LoadData("train.txt",True)
 model1=train(data)
 model1.save_checkpoint(".\\Model\\model.crnf")
+data1=LoadData("test.txt",False)
+test(data1,model1)
 g=input("Нажмите любую клавишу")
 
