@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
 VisualStudioVersion = 15.0.26730.12
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{888888A0-9F3D-457C-B088-3A5042F75D52}") = "ForexNN1", "ForexNN1\ForexNN1.pyproj", "{485DEDEE-749B-4526-9638-D5176E69551D}"
+Project("{888888A0-9F3D-457C-B088-3A5042F75D52}") = "ForexNN1", "ForexNN1\ForexNN1.pyproj", "{552E2B4A-1CEA-4CA3-9E1C-A1EBC7D97370}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -11,13 +11,13 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{485DEDEE-749B-4526-9638-D5176E69551D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{485DEDEE-749B-4526-9638-D5176E69551D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{552E2B4A-1CEA-4CA3-9E1C-A1EBC7D97370}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{552E2B4A-1CEA-4CA3-9E1C-A1EBC7D97370}.Release|Any CPU.ActiveCfg = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
-		SolutionGuid = {D898B596-1A60-45B8-9015-EBEA829B9DFD}
+		SolutionGuid = {56CAAFC3-9D48-421F-8B36-17DA0034820C}
 	EndGlobalSection
 EndGlobal
