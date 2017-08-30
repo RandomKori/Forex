@@ -34,21 +34,19 @@ def train(streamf):
     }
     training_progress_output_freq = 500
     minibatch_size = 1
-    num_samples_per_sweep = 60000
-    num_sweeps_to_train_with = 10
-    num_minibatches_to_train = (num_samples_per_sweep * num_sweeps_to_train_with) / minibatch_size
-    for i in range(0,int(num_minibatches_to_train)):
+    num_samples_per_sweep = 10000
+    for i in range(0,num_samples_per_sweep):
         dat1=streamf.next_minibatch(minibatch_size,input_map = input_map)
         trainer.train_minibatch(dat1)
         training_loss = trainer.previous_minibatch_loss_average
         eval_error = trainer.previous_minibatch_evaluation_average
         print ("Minibatch: {0}, Loss: {1:.4f}, Error: {2:.2f}%".format(i, training_loss, eval_error*100))
-        if eval_error*100<2.0:
+        if training_loss<0.002:
             break
-    return trainer.model
+    return trainer
 
 data=LoadData("train.txt",True)
-
-model=train(data)
+model1=train(data)
+model1.save_checkpoint(".\\Model\\model.crnf")
 g=input("Нажмите любую клавишу")
 
