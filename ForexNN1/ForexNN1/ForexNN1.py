@@ -11,4 +11,3 @@ def LoadData(fn):
     return rez
 
 data=LoadData("train.txt")
-print(data)
