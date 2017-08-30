@@ -10,3 +10,4 @@ def LoadData(fn):
     return rez
 
 data=LoadData("train.txt")
+g=input("Нажмите любую клавишу")
