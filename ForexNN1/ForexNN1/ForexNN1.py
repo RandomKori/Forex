@@ -32,7 +32,6 @@ def train(streamf):
         input_var : streamf.streams.features,
         label_var : streamf.streams.labels
     }
-    training_progress_output_freq = 500
     minibatch_size = 1
     num_samples_per_sweep = 10
     for i in range(0,num_samples_per_sweep):
@@ -48,12 +47,12 @@ def train(streamf):
 def test(streamf,trainer):
     input_var = cntk.input_variable(45)
     label_var=cntk.input_variable(3)
-    input_map={
+    test_input_map={
         input_var : streamf.streams.features,
         label_var : streamf.streams.labels
     }
     test_minibatch_size=1
-    dat=streamf.next_minibatch(test_minibatch_size,input_map=input_map)
+    dat=streamf.next_minibatch(test_minibatch_size,input_map = test_input_map)
     eval_error=trainer.test_minibatch(dat)
     print("Average test error: {0:.2f}%".format(eval_error*100))
     return
