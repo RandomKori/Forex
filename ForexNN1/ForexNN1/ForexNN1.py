@@ -4,9 +4,9 @@ import cntk
 
 def LoadData(fn,is_training):
     n=".\\Data\\"+fn
-    datainp=cntk.io.StreamDef("Input",45)
-    dataout=cntk.io.StreamDef("Label",3)
-    dataall=cntk.io.StreamDefs(labels=dataout,features=datainp)
+    datainp=cntk.io.StreamDef("features",45)
+    dataout=cntk.io.StreamDef("labels",3)
+    dataall=cntk.io.StreamDefs(features=datainp,labels=dataout)
     st=cntk.io.CTFDeserializer(n,dataall)
     rez=cntk.io.MinibatchSource(st,randomize = is_training,max_sweeps = cntk.io.INFINITELY_REPEAT if is_training else 1)
     return rez
@@ -46,24 +46,25 @@ def train(net,streamf):
     learner=cntk.sgd(net.parameters,lr_schedule)
     trainer=cntk.Trainer(net,(loss,label_error),[learner])
     input_map={
-    label: streamf.streams.labels,
-    input: streamf.streams.features
+        input: streamf.streams.features,
+        label: streamf.streams.labels
     }
+    training_progress_output_freq = 500
     minibatch_size = 64
     num_samples_per_sweep = 60000
     num_sweeps_to_train_with = 10
     num_minibatches_to_train = (num_samples_per_sweep * num_sweeps_to_train_with) / minibatch_size
     for i in range(0,int(num_minibatches_to_train)):
-        dat=streamf.next_minibatch(minibatch_size,input_map=input_map)
-        trainer.train_minibatch(dat)
+        dat1=streamf.next_minibatch(minibatch_size,input_map = input_map)
+        trainer.train_minibatch(dat1)
         batchsize, loss, error = print_training_progress(trainer, i, training_progress_output_freq, verbose=1)
         if error<2.0:
             break
-    return
+    return trainer.model
 
 data=LoadData("train.txt",True)
 x=cntk.input_variable(45)
 net=nn(x)
-train(net,data)
+model=train(net,data)
 g=input("Нажмите любую клавишу")
 
