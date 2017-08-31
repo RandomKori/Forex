@@ -50,7 +50,18 @@ def test(streamf,trainer):
     mb = streamf.next_minibatch(1000)
     output = model.eval(mb[streamf.streams.features])
     lsb=mb[streamf.streams.labels].data.asarray()
-    return
+    for i in range(0,1000):
+        for j in range(0,3):
+            if output[i,j]>0.5:
+                output[i,j]=1.0
+            else:
+                output[i,j]=0.0
+    err=0
+    for i1 in range(0,1000):
+        for j1 in range(0,3):
+            if lsb[i1,0,j1]!=output[i1,j1]:
+                err=err+1
+    print("Test error: {0:.4f}".format(err/1000*100))
 
 data=LoadData("train.txt",True)
 model1=train(data)
