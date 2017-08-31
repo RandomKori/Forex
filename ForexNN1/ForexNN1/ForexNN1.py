@@ -47,12 +47,9 @@ def train(streamf):
 
 def test(streamf,trainer):
     model=trainer.model
-    node_in_graph = model.find_by_name('forex')
-    output_nodes  = cntk.combine([node_in_graph.owner])
     mb = streamf.next_minibatch(1000)
-    cntk.debugging.start_profiler()
-    output = output_nodes.eval(mb[streamf.streams.features])
-    cntk.debugging.stop_profiler()
+    output = model.eval(mb[streamf.streams.features])
+    lsb=mb[streamf.streams.labels].data.asarray()
     return
 
 data=LoadData("train.txt",True)
