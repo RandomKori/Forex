@@ -19,8 +19,8 @@ def nn(x):
     return m
 
 def train(streamf):
-    input_var = cntk.input_variable(45,np.float32)
-    label_var=cntk.input_variable(3,np.float32)
+    input_var = cntk.input_variable(45,np.float32, name = 'features')
+    label_var=cntk.input_variable(3,np.float32, name = 'labels')
     net=nn(input_var)
     loss=cntk.cross_entropy_with_softmax(net,label_var)
     label_error=cntk.classification_error(net,label_var)
@@ -46,8 +46,8 @@ def train(streamf):
     return trainer
 
 def test(streamf,trainer):
-    test_input_var = cntk.input_variable(45,np.float32)
-    test_label_var=cntk.input_variable(3,np.float32)
+    test_input_var = cntk.input_variable(45,np.float32, name = 'features')
+    test_label_var=cntk.input_variable(3,np.float32, name = 'labels')
     test_input_map={
         test_input_var : streamf.streams.features,
         test_label_var : streamf.streams.labels
@@ -55,8 +55,8 @@ def test(streamf,trainer):
     test_minibatch_size=1000
     test_result = 0.0
     for i in range(10):
-        dat=streamf.next_minibatch(test_minibatch_size,input_map = test_input_map)
-        eval_error=trainer.test_minibatch(dat)
+        dat1=streamf.next_minibatch(test_minibatch_size,input_map = test_input_map)
+        eval_error=trainer.test_minibatch(dat1)
         test_result = test_result + eval_error
     print("Average test error: {0:.2f}%".format(eval_error*100)/10)
     return
