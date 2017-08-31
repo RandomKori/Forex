@@ -24,13 +24,13 @@ def train(streamf):
     net=nn(input_var)
     loss=cntk.cross_entropy_with_softmax(net,label_var)
     label_error=cntk.classification_error(net,label_var)
-    learning_rate=0.2
+    learning_rate=0.02
     lr_schedule=cntk.learning_rate_schedule(learning_rate,cntk.UnitType.minibatch)
     learner=cntk.sgd(net.parameters,lr_schedule)
-    trainer=cntk.Trainer(net,(loss,label_error),learner)
+    trainer=cntk.Trainer(net,(loss,label_error),[learner])
     input_map={
-        label_var : streamf.streams.labels,
-        input_var : streamf.streams.features
+        input_var : streamf.streams.features,
+        label_var : streamf.streams.labels
         
     }
     minibatch_size = 5000
@@ -46,11 +46,11 @@ def train(streamf):
     return trainer
 
 def test(streamf,trainer):
-    input_var = cntk.input_variable(45,np.float32)
-    label_var=cntk.input_variable(3,np.float32)
+    test_input_var = cntk.input_variable(45,np.float32)
+    test_label_var=cntk.input_variable(3,np.float32)
     test_input_map={
-        label_var : streamf.streams.labels,
-        input_var : streamf.streams.features
+        test_input_var : streamf.streams.features,
+        test_label_var : streamf.streams.labels
     }
     test_minibatch_size=1000
     test_result = 0.0
@@ -63,7 +63,7 @@ def test(streamf,trainer):
 
 data=LoadData("train.txt",True)
 model1=train(data)
-model1.save_checkpoint(".\\Model\\model.crnf")
+model1.save_checkpoint(".\\Model\\model.cmf")
 data1=LoadData("test.txt",False)
 test(data1,model1)
 g=input("Нажмите любую клавишу")
