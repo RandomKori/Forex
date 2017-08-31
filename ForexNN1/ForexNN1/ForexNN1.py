@@ -12,7 +12,7 @@ def LoadData(fn,is_training):
     return mbs
 
 def nn(x):
-    m=cntk.layers.Dense(100,activation=cntk.tanh)(x)
+    m=cntk.layers.Dense(100,activation=cntk.tanh,name='forex')(x)
     for i in range(0,9):
         m=cntk.layers.Dense(100,activation=cntk.tanh)(m)
     m=cntk.layers.Dense(3,activation=cntk.softmax)(m)
@@ -46,19 +46,13 @@ def train(streamf):
     return trainer
 
 def test(streamf,trainer):
-    test_input_var = cntk.input_variable(45,np.float32, name = 'features')
-    test_label_var=cntk.input_variable(3,np.float32, name = 'labels')
-    test_input_map={
-        test_input_var : streamf.streams.features,
-        test_label_var : streamf.streams.labels
-    }
-    test_minibatch_size=1000
-    test_result = 0.0
-    for i in range(10):
-        dat1=streamf.next_minibatch(test_minibatch_size,input_map = test_input_map)
-        eval_error=trainer.test_minibatch(dat1)
-        test_result = test_result + eval_error
-    print("Average test error: {0:.2f}%".format(eval_error*100)/10)
+    model=trainer.model
+    node_in_graph = model.find_by_name('forex')
+    output_nodes  = cntk.combine([node_in_graph.owner])
+    mb = streamf.next_minibatch(1000)
+    cntk.debugging.start_profiler()
+    output = output_nodes.eval(mb[streamf.streams.features])
+    cntk.debugging.stop_profiler()
     return
 
 data=LoadData("train.txt",True)
