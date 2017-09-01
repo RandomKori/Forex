@@ -12,7 +12,7 @@ def LoadData(fn,is_training):
     return mbs
 
 def nn(x):
-    m=cntk.layers.Dense(100,activation=cntk.tanh,name='forex')(x)
+    m=cntk.layers.Dense(100,activation=cntk.tanh)(x)
     for i in range(0,9):
         m=cntk.layers.Dense(100,activation=cntk.tanh)(m)
     m=cntk.layers.Dense(3,activation=cntk.softmax)(m)
