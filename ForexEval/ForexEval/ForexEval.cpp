@@ -9,14 +9,14 @@ extern "C" __declspec(dllexport) void EvalMoswl(double inp[], double out[]);
 using namespace Microsoft::MSR::CNTK;
 
 
-Eval<double>* model;
+IEvaluateModel<double>* model;
 
 void LoadModel(char* s)
 {
-	std::string config("deviceId=auto modelPath=.\\Models\\");
+	std::string config(".\\Models\\");
 	config.append(s);
-	config.append(" minibatchSize=1024");
-	model = new Eval<double>(config);
+	GetEvalD(&model);
+	model->CreateNetwork(config);
 }
 
 void EvalMoswl(double inp[], double out[])
