@@ -12,9 +12,9 @@ def LoadData(fn,is_training):
     return mbs
 
 def nn(x):
-    m=cntk.layers.Recurrence(cntk.layers.RNNStep(45))(x)
-    for i in range(0,9):
-         m=cntk.layers.Recurrence(cntk.layers.RNNStep(45))(m)
+    m=cntk.layers.Embedding(45)(x)
+    for i in range(0,10):
+         m=cntk.layers.Recurrence(cntk.layers.RNNStep(100))(m)
     m=cntk.sequence.last(m)
     m=cntk.layers.Dense(3,activation=cntk.softmax)(m)
     return m
@@ -26,10 +26,11 @@ def train(streamf):
     loss=cntk.squared_error(net,label_var)
     error=cntk.squared_error(net,label_var)
     learning_rate=0.02
-    lr_schedule=cntk.learning_rate_schedule(learning_rate,cntk.UnitType.sample)
+    lr_schedule=cntk.learning_rate_schedule(learning_rate,cntk.UnitType.minibatch)
     momentum_time_constant = cntk.momentum_as_time_constant_schedule(50000 / -np.math.log(0.9))
     learner=cntk.fsadagrad(net.parameters,lr=lr_schedule,momentum = momentum_time_constant,unit_gain = True)
-    trainer=cntk.Trainer(net,(loss,error),[learner])
+    progres=cntk.logging.ProgressPrinter(0)
+    trainer=cntk.Trainer(net,(loss,error),[learner],progress_writers=progres)
     input_map={
         input_var : streamf.streams.features,
         label_var : streamf.streams.labels
@@ -42,7 +43,6 @@ def train(streamf):
         trainer.train_minibatch(dat1)
         training_loss = trainer.previous_minibatch_loss_average
         eval_error = trainer.previous_minibatch_evaluation_average
-        print ("Minibatch: {0}, Loss: {1:.4f}, Error: {2:.2f}%".format(i, training_loss, eval_error*100))
         if training_loss<0.002:
             break
     return trainer
