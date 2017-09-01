@@ -12,22 +12,24 @@ def LoadData(fn,is_training):
     return mbs
 
 def nn(x):
-    m=cntk.layers.Dense(100,activation=cntk.tanh,name='forex')(x)
+    m=cntk.layers.Recurrence(cntk.layers.RNNStep(45))(x)
     for i in range(0,9):
-        m=cntk.layers.Dense(100,activation=cntk.tanh)(m)
+         m=cntk.layers.Recurrence(cntk.layers.RNNStep(45))(m)
+    m=cntk.sequence.last(m)
     m=cntk.layers.Dense(3,activation=cntk.softmax)(m)
     return m
 
 def train(streamf):
-    input_var = cntk.input_variable(45,np.float32, name = 'features')
+    input_var = cntk.input_variable(45,np.float32, name = 'features',dynamic_axes=cntk.axis.Axis.default_input_variable_dynamic_axes())
     label_var=cntk.input_variable(3,np.float32, name = 'labels')
     net=nn(input_var)
-    loss=cntk.cross_entropy_with_softmax(net,label_var)
-    label_error=cntk.classification_error(net,label_var)
+    loss=cntk.squared_error(net,label_var)
+    error=cntk.squared_error(net,label_var)
     learning_rate=0.02
-    lr_schedule=cntk.learning_rate_schedule(learning_rate,cntk.UnitType.minibatch)
-    learner=cntk.sgd(net.parameters,lr_schedule)
-    trainer=cntk.Trainer(net,(loss,label_error),[learner])
+    lr_schedule=cntk.learning_rate_schedule(learning_rate,cntk.UnitType.sample)
+    momentum_time_constant = cntk.momentum_as_time_constant_schedule(50000 / -np.math.log(0.9))
+    learner=cntk.fsadagrad(net.parameters,lr=lr_schedule,momentum = momentum_time_constant,unit_gain = True)
+    trainer=cntk.Trainer(net,(loss,error),[learner])
     input_map={
         input_var : streamf.streams.features,
         label_var : streamf.streams.labels
@@ -49,7 +51,6 @@ def test(streamf,trainer):
     model=trainer.model
     mb = streamf.next_minibatch(1000)
     output = model.eval(mb[streamf.streams.features])
-    print(output)
     lsb=mb[streamf.streams.labels].data.asarray()
     for i in range(0,1000):
         for j in range(0,3):
