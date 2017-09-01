@@ -51,6 +51,7 @@ def test(streamf,trainer):
     model=trainer.model
     mb = streamf.next_minibatch(1000)
     output = model.eval(mb[streamf.streams.features])
+    print(output)
     lsb=mb[streamf.streams.labels].data.asarray()
     for i in range(0,1000):
         for j in range(0,3):
