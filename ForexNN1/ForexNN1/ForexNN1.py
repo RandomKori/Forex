@@ -51,7 +51,7 @@ def test(streamf,trainer):
     output = model.eval(mb[streamf.streams.features])
     print(output)
     lsb=mb[streamf.streams.labels].data.asarray()
-    for i in range(0,1000):
+    for i in range(0,10):
         for j in range(0,3):
             if output[i,j]>0.5:
                 output[i,j]=1.0
@@ -66,7 +66,7 @@ def test(streamf,trainer):
 
 data=LoadData("train.txt",True)
 model1=train(data)
-model1.save_checkpoint(".\\Model\\model.cmf")
+cntk.Function.save(model1.model,".\\Model\\model.cmf")
 data1=LoadData("test.txt",False)
 test(data1,model1)
 g=input("Нажмите любую клавишу")

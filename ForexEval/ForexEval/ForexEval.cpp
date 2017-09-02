@@ -3,19 +3,16 @@
 
 #include "stdafx.h"
 
-extern "C"  __declspec(dllexport) void LoadModel(wchar_t* s);
-extern "C" __declspec(dllexport) void EvalModel(double* inp, double* out);
-
 using namespace CNTK;
+
+extern "C" __declspec(dllexport) void LoadModel(wchar_t* s);
+extern "C" __declspec(dllexport) void EvalModel(double* inp, double* out);
 
 FunctionPtr model;
 
 void LoadModel(wchar_t* s)
 {
-	wchar_t* c= L".\\Models\\";
-	std::wstring config(c);
-	config += std::wstring(s);
-	model=Function::Load(config.c_str());
+	model = Function::Load(s);
 }
 
 void EvalModel(double* inp, double* out)
@@ -31,11 +28,12 @@ void EvalModel(double* inp, double* out)
 	inps = Value::CreateSequence(sp,v,d);
 	NDShape sp1 = {3};
 	outs = Value::CreateSequence(sp1, v1, d);
-	Variable var1(model);
+	auto var1= InputVariable(NDShape({ 45 }), DataType::Double, { Axis::DefaultDynamicAxis() });
+	auto var2 = InputVariable(NDShape({ 3 }), DataType::Double, { Axis::DefaultBatchAxis() });
 	std::unordered_map<Variable, ValuePtr> inputLayer;
 	std::unordered_map<Variable, ValuePtr> outputLayer;
 	inputLayer.insert(std::pair<Variable, ValuePtr>(var1, inps));
-	outputLayer.insert(std::pair<Variable, ValuePtr>(var1, outs));
+	outputLayer.insert(std::pair<Variable, ValuePtr>(var2, outs));
 	model->Evaluate(inputLayer, outputLayer);
 	for (int i = 0; i < 3; i++)
 		out[i] = v1[i];
