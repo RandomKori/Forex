@@ -66,7 +66,7 @@ def test(streamf,trainer):
 
 data=LoadData("train.txt",True)
 model1=train(data)
-cntk.Function.save(model1.model,".\\Model\\model.cmf")
+model1.save_checkpoint(".\\Model\\model.cmf")
 data1=LoadData("test.txt",False)
 test(data1,model1)
 g=input("Нажмите любую клавишу")
