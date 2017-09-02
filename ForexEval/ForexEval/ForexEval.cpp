@@ -3,21 +3,22 @@
 
 #include "stdafx.h"
 
-extern "C"  __declspec(dllexport) void __stdcall LoadModel(wchar_t* s);
-extern "C" __declspec(dllexport) void __stdcall EvalModel(double* inp, double* out);
+extern "C"  __declspec(dllexport) void LoadModel(wchar_t* s);
+extern "C" __declspec(dllexport) void EvalModel(double* inp, double* out);
 
 using namespace CNTK;
 
 FunctionPtr model;
 
-void __stdcall LoadModel(wchar_t* s)
+void LoadModel(wchar_t* s)
 {
-	std::wstring config=L"./Models/";
-	config.append(s);
-	model->Load(config);
+	wchar_t* c= L".\\Models\\";
+	std::wstring config(c);
+	config += std::wstring(s);
+	model=Function::Load(config.c_str());
 }
 
-void __stdcall EvalModel(double* inp, double* out)
+void EvalModel(double* inp, double* out)
 {
 	std::vector<double> v(45);
 	std::vector<double> v1(3);
@@ -26,18 +27,15 @@ void __stdcall EvalModel(double* inp, double* out)
 	ValuePtr inps;
 	ValuePtr outs;
 	DeviceDescriptor d= DeviceDescriptor::UseDefaultDevice();
-	NDShape sp(45,1);
+	NDShape sp = {45};
 	inps = Value::CreateSequence(sp,v,d);
-	NDShape sp1(3, 1);
+	NDShape sp1 = {3};
 	outs = Value::CreateSequence(sp1, v1, d);
-	Variable var1;
-	var1= InputVariable({ 45 }, AsDataType<double>(), L"features");
-	Variable var2;
-	var2 = InputVariable({ 3 }, AsDataType<double>(), L"labels");
+	Variable var1(model);
 	std::unordered_map<Variable, ValuePtr> inputLayer;
 	std::unordered_map<Variable, ValuePtr> outputLayer;
 	inputLayer.insert(std::pair<Variable, ValuePtr>(var1, inps));
-	outputLayer.insert(std::pair<Variable, ValuePtr>(var2, outs));
+	outputLayer.insert(std::pair<Variable, ValuePtr>(var1, outs));
 	model->Evaluate(inputLayer, outputLayer);
 	for (int i = 0; i < 3; i++)
 		out[i] = v1[i];
