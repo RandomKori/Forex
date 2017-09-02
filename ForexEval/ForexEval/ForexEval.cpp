@@ -8,6 +8,8 @@ extern "C" __declspec(dllexport) void __stdcall EvalModel(double* inp, double* o
 
 using namespace Microsoft::MSR::CNTK;
 
+typedef std::pair<std::wstring, std::vector<double>*> MapEntry;
+typedef std::map<std::wstring, std::vector<double>*> Layer;
 
 IEvaluateModel<double>* model;
 
@@ -27,16 +29,20 @@ void __stdcall LoadModel(wchar_t* s)
 void __stdcall EvalModel(double* inp, double* out)
 {
 	std::vector<double> v(45);
+	std::vector<double> v1(3);
 	for (int i = 0; i < 45; i++)
 		v[i] = inp[i];
-	std::wstring s = L"features";
-	std::map<std::wstring, std::vector<double>*> inpt;
-	inpt.insert(std::map<std::wstring, std::vector<double>*>::value_type(s, &v));
-	std::vector<double> v1(3);
-	std::wstring s1 = L"labels";
-	std::map<std::wstring, std::vector<double>*> outt;
-	outt.insert(std::map<std::wstring, std::vector<double>*>::value_type(s1, &v1));
-	model->Evaluate(inpt, outt);
+	std::map<std::wstring, size_t> inDims;
+	std::map<std::wstring, size_t> outDims;
+	model->GetNodeDimensions(inDims, NodeGroup::nodeInput);
+	model->GetNodeDimensions(outDims, NodeGroup::nodeOutput);
+	auto inputLayerName = inDims.begin()->first;
+	auto outputLayerName = outDims.begin()->first;
+	Layer inputLayer;
+	inputLayer.insert(MapEntry(inputLayerName, &v));
+	Layer outputLayer;
+	outputLayer.insert(MapEntry(outputLayerName, &v1));
+	model->Evaluate(inputLayer, outputLayer);
 	for (int i = 0; i < 3; i++)
 		out[i] = v1[i];
 }
