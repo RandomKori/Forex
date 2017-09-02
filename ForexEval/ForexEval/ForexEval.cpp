@@ -6,24 +6,15 @@
 extern "C"  __declspec(dllexport) void __stdcall LoadModel(wchar_t* s);
 extern "C" __declspec(dllexport) void __stdcall EvalModel(double* inp, double* out);
 
-using namespace Microsoft::MSR::CNTK;
+using namespace CNTK;
 
-typedef std::pair<std::wstring, std::vector<double>*> MapEntry;
-typedef std::map<std::wstring, std::vector<double>*> Layer;
-
-IEvaluateModel<double>* model;
+FunctionPtr model;
 
 void __stdcall LoadModel(wchar_t* s)
 {
-	std::string config("deviceId=auto minibatchSize=1024 modelPath=\"./Models/");
-	char s1[256];
-	size_t len=std::wcstombs(s1,s, wcslen(s));
-	if (len > 0u)
-		s1[len] = '\0';
-	config.append(s1);
-	config.append("\"");
-	GetEvalD(&model);
-	model->Init(config);
+	std::wstring config=L".\\Models\\";
+	config.append(s);
+	model->Load(config);
 }
 
 void __stdcall EvalModel(double* inp, double* out)
@@ -32,16 +23,18 @@ void __stdcall EvalModel(double* inp, double* out)
 	std::vector<double> v1(3);
 	for (int i = 0; i < 45; i++)
 		v[i] = inp[i];
-	std::map<std::wstring, size_t> inDims;
-	std::map<std::wstring, size_t> outDims;
-	model->GetNodeDimensions(inDims, NodeGroup::nodeInput);
-	model->GetNodeDimensions(outDims, NodeGroup::nodeOutput);
-	auto inputLayerName = inDims.begin()->first;
-	auto outputLayerName = outDims.begin()->first;
-	Layer inputLayer;
-	inputLayer.insert(MapEntry(inputLayerName, &v));
-	Layer outputLayer;
-	outputLayer.insert(MapEntry(outputLayerName, &v1));
+	ValuePtr inps;
+	ValuePtr outs;
+	DeviceDescriptor d= DeviceDescriptor::UseDefaultDevice();
+	NDShape sp(45,1);
+	inps = Value::CreateSequence(sp,v,d);
+	NDShape sp1(3, 1);
+	outs = Value::CreateSequence(sp1, v1, d);
+	Variable var1(model);
+	std::unordered_map<Variable, ValuePtr> inputLayer;
+	std::unordered_map<Variable, ValuePtr> outputLayer;
+	inputLayer.insert(std::pair<Variable, ValuePtr>(var1, inps));
+	outputLayer.insert(std::pair<Variable, ValuePtr>(var1, outs));
 	model->Evaluate(inputLayer, outputLayer);
 	for (int i = 0; i < 3; i++)
 		out[i] = v1[i];
