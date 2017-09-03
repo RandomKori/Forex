@@ -68,7 +68,8 @@ def test(streamf,trainer):
 
 data=LoadData("train.txt",True)
 model1=train(data)
-model1.save_checkpoint(".\\Model\\model.cmf")
+md=model1.model
+md.save(".\\Model\\model.cmf")
 data1=LoadData("test.txt",False)
 test(data1,model1)
 g=input("Нажмите любую клавишу")
