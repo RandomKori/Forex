@@ -12,8 +12,8 @@ def LoadData(fn,is_training):
     return mbs
 
 def nn(x):
-    m=cntk.layers.Dense(100,activation=cntk.tanh)(x)
-    for i in range(0,9):
+    m=cntk.layers.Stabilizer()(x)
+    for i in range(0,10):
         m=cntk.layers.Dense(100,activation=cntk.tanh)(m)
     m=cntk.layers.Dense(3,activation=cntk.softmax)(m)
     return m
@@ -24,7 +24,7 @@ def train(streamf):
     net=nn(input_var)
     loss=cntk.cross_entropy_with_softmax(net,label_var)
     label_error=cntk.classification_error(net,label_var)
-    learning_rate=0.02
+    learning_rate=0.2
     lr_schedule=cntk.learning_rate_schedule(learning_rate,cntk.UnitType.minibatch)
     learner=cntk.sgd(net.parameters,lr_schedule)
     progres=cntk.logging.ProgressPrinter(0)
@@ -35,7 +35,7 @@ def train(streamf):
         
     }
     minibatch_size = 5000
-    num_samples_per_sweep = 2000
+    num_samples_per_sweep = 5000
     for i in range(0,num_samples_per_sweep):
         dat1=streamf.next_minibatch(minibatch_size,input_map = input_map)
         trainer.train_minibatch(dat1)
@@ -49,9 +49,9 @@ def test(streamf,trainer):
     model=trainer.model
     mb = streamf.next_minibatch(1000)
     output = model.eval(mb[streamf.streams.features])
-    print(output)
     lsb=mb[streamf.streams.labels].data.asarray()
     for i in range(0,1000):
+        print("[ {0} {1} {2} ]".format(output[i,0],output[i,1],output[i,2]))
         for j in range(0,3):
             if output[i,j]>0.5:
                 output[i,j]=1.0

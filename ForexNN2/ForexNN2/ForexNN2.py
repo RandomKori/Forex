@@ -51,9 +51,9 @@ def test(streamf,trainer):
     model=trainer.model
     mb = streamf.next_minibatch(1000)
     output = model.eval(mb[streamf.streams.features])
-    print(output)
     lsb=mb[streamf.streams.labels].data.asarray()
     for i in range(0,1000):
+        print("[ {0} {1} {2} ]".format(output[i,0],output[i,1],output[i,2]))
         for j in range(0,3):
             if output[i,j]>0.5:
                 output[i,j]=1.0
