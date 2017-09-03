@@ -23,8 +23,8 @@ def train(streamf):
     input_var = cntk.input_variable(45,np.float32, name = 'features')
     label_var=cntk.input_variable(3,np.float32, name = 'labels')
     net=nn(input_var)
-    loss=cntk.cross_entropy_with_softmax(net,label_var)
-    label_error=cntk.classification_error(net,label_var)
+    loss = cntk.squared_error(net,label_var)
+    error=cntk.squared_error(net,label_var)
     learning_rate=0.002
     lr_schedule=cntk.learning_rate_schedule(learning_rate,cntk.UnitType.minibatch)
     learner=cntk.sgd(net.parameters,lr_schedule)

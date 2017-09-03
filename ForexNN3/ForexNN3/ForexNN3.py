@@ -22,8 +22,8 @@ def train(streamf):
     input_var = cntk.input_variable(45,np.float32, name = 'features',dynamic_axes=cntk.axis.Axis.default_input_variable_dynamic_axes())
     label_var=cntk.input_variable(3,np.float32, name = 'labels',dynamic_axes=cntk.axis.Axis.default_input_variable_dynamic_axes())
     net=nn(input_var)
-    loss=cntk.cross_entropy_with_softmax(net,label_var)
-    error=cntk.classification_error(net,label_var)
+    loss = cntk.squared_error(net,label_var)
+    error=cntk.squared_error(net,label_var)
     learning_rate=0.2
     lr_schedule=cntk.learning_rate_schedule(learning_rate,cntk.UnitType.minibatch)
     momentum_time_constant = cntk.momentum_as_time_constant_schedule(140 / -np.math.log(0.9))

@@ -16,14 +16,14 @@ def nn(x):
     for i in range(0,10):
          m=cntk.layers.Recurrence(cntk.layers.RNNStep(100))(m)
          m=cntk.sequence.last(m)
-    m=cntk.layers.Dense(3,activation=cntk.softmax)(m)
+    m=cntk.layers.Dense(3)(m)
     return m
 
 def train(streamf):
     input_var = cntk.input_variable(45,np.float32, name = 'features',dynamic_axes=cntk.axis.Axis.default_input_variable_dynamic_axes())
     label_var=cntk.input_variable(3,np.float32, name = 'labels')
     net=nn(input_var)
-    loss=cntk.cross_entropy_with_softmax(net,label_var)
+    loss = cntk.squared_error(net,label_var)
     error=cntk.squared_error(net,label_var)
     learning_rate=0.02
     lr_schedule=cntk.learning_rate_schedule(learning_rate,cntk.UnitType.minibatch)
