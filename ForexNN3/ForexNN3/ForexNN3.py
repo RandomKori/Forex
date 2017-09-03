@@ -15,7 +15,7 @@ def nn(x):
     m=cntk.layers.Recurrence(cntk.layers.LSTM(45))(x)
     for i in range(0,10):
          m=cntk.layers.Recurrence(cntk.layers.LSTM(45))(m)
-    m=cntk.layers.Recurrence(cntk.layers.LSTM(3,activation=cntk.softmax))(m)
+    m=cntk.layers.Recurrence(cntk.layers.LSTM(3))(m)
     return m
 
 def train(streamf):
@@ -23,10 +23,10 @@ def train(streamf):
     label_var=cntk.input_variable(3,np.float32, name = 'labels',dynamic_axes=cntk.axis.Axis.default_input_variable_dynamic_axes())
     net=nn(input_var)
     loss=cntk.cross_entropy_with_softmax(net,label_var)
-    error=cntk.squared_error(net,label_var)
-    learning_rate=0.02
+    error=cntk.classification_error(net,label_var)
+    learning_rate=0.2
     lr_schedule=cntk.learning_rate_schedule(learning_rate,cntk.UnitType.minibatch)
-    momentum_time_constant = cntk.momentum_as_time_constant_schedule(5000 / -np.math.log(0.9))
+    momentum_time_constant = cntk.momentum_as_time_constant_schedule(140 / -np.math.log(0.9))
     learner=cntk.fsadagrad(net.parameters,lr=lr_schedule,momentum = momentum_time_constant,unit_gain = True)
     progres=cntk.logging.ProgressPrinter(0)
     trainer=cntk.Trainer(net,(loss,error),[learner],progress_writers=progres)
@@ -53,18 +53,8 @@ def test(streamf,trainer):
     
     lsb=mb[streamf.streams.labels].data.asarray()
     for i in range(0,1000):
-        print("[ {0} {1} {2} ]".format(output[i,0],output[i,1],output[i,2]))
-        for j in range(0,3):
-            if output[i,j]>0.5:
-                output[i,j]=1.0
-            else:
-                output[i,j]=0.0
-    err=0
-    for i1 in range(0,1000):
-        for j1 in range(0,3):
-            if lsb[i1,0,j1]!=output[i1,j1]:
-                err=err+1
-    print("Test error: {0:.4f}".format(err/1000*100))
+        print("[ {0} ]".format(output[i]))
+
 
 data=LoadData("train.txt",True)
 model1=train(data)

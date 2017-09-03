@@ -16,7 +16,7 @@ def nn(x):
     for i in range(0,5):
         m=cntk.layers.Dense(60,activation=cntk.relu)(m)
     m=cntk.layers.Dropout(0.5)(m)
-    m=cntk.layers.Dense(3,activation=cntk.softmax)(m)
+    m=cntk.layers.Dense(3,activation=cntk.relu)(m)
     return m
 
 def train(streamf):
