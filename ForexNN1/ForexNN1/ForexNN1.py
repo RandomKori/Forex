@@ -34,8 +34,8 @@ def train(streamf):
         label_var : streamf.streams.labels
         
     }
-    minibatch_size = 50000
-    num_samples_per_sweep = 1000
+    minibatch_size = 5000
+    num_samples_per_sweep = 2000
     for i in range(0,num_samples_per_sweep):
         dat1=streamf.next_minibatch(minibatch_size,input_map = input_map)
         trainer.train_minibatch(dat1)
@@ -51,7 +51,7 @@ def test(streamf,trainer):
     output = model.eval(mb[streamf.streams.features])
     print(output)
     lsb=mb[streamf.streams.labels].data.asarray()
-    for i in range(0,10):
+    for i in range(0,1000):
         for j in range(0,3):
             if output[i,j]>0.5:
                 output[i,j]=1.0

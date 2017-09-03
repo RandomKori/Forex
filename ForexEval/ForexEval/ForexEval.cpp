@@ -26,10 +26,10 @@ void EvalModel(double* inp, double* out)
 	ValuePtr inps;
 	ValuePtr outs;
 	DeviceDescriptor d= DeviceDescriptor::UseDefaultDevice();
-	auto var1 = InputVariable(NDShape({ 45 }), DataType::Float,L"features");
-	auto var2 = InputVariable(NDShape({ 3 }), DataType::Float,L"labels");
-	inps = Value::CreateBatch(NDShape({ 45 }), v, d);
-	outs = Value::CreateBatch(NDShape({ 3 }), v1, d);
+	auto var1 = InputVariable(NDShape({ 45,1 }), DataType::Float, L"features");
+	auto var2 = InputVariable(NDShape({ 3,1 }), DataType::Float, L"labels");
+	inps = Value::CreateBatch(NDShape({ 45,1 }), v, d);
+	//outs = Value::CreateBatch(NDShape({ 3,1 }), v1, d);
 	std::unordered_map<Variable, ValuePtr> inputLayer = { { var1, inps } };
 	std::unordered_map<Variable, ValuePtr> outputLayer = { { var2, outs } };
 	model->Evaluate(inputLayer, outputLayer);
