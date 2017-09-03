@@ -12,9 +12,10 @@ def LoadData(fn,is_training):
     return mbs
 
 def nn(x):
-    m=cntk.layers.Stabilizer()(x)
-    for i in range(0,10):
-        m=cntk.layers.Dense(100,activation=cntk.tanh)(m)
+    m=cntk.layers.Dense(60,activation=cntk.relu)(x)
+    for i in range(0,5):
+        m=cntk.layers.Dense(60,activation=cntk.relu)(m)
+    m=cntk.layers.Dropout(0.5)(m)
     m=cntk.layers.Dense(3,activation=cntk.softmax)(m)
     return m
 
@@ -24,7 +25,7 @@ def train(streamf):
     net=nn(input_var)
     loss=cntk.cross_entropy_with_softmax(net,label_var)
     label_error=cntk.classification_error(net,label_var)
-    learning_rate=0.2
+    learning_rate=0.002
     lr_schedule=cntk.learning_rate_schedule(learning_rate,cntk.UnitType.minibatch)
     learner=cntk.sgd(net.parameters,lr_schedule)
     progres=cntk.logging.ProgressPrinter(0)
