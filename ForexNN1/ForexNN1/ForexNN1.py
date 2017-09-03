@@ -29,7 +29,7 @@ def train(streamf):
     lr_schedule=cntk.learning_rate_schedule(learning_rate,cntk.UnitType.minibatch)
     learner=cntk.sgd(net.parameters,lr_schedule)
     progres=cntk.logging.ProgressPrinter(0)
-    trainer=cntk.Trainer(net,(loss,label_error),[learner],progress_writers=progres)
+    trainer=cntk.Trainer(net,(loss,error),[learner],progress_writers=progres)
     input_map={
         input_var : streamf.streams.features,
         label_var : streamf.streams.labels
@@ -42,8 +42,6 @@ def train(streamf):
         trainer.train_minibatch(dat1)
         training_loss = trainer.previous_minibatch_loss_average
         eval_error = trainer.previous_minibatch_evaluation_average
-        if training_loss<0.002:
-            break
     return trainer
 
 def test(streamf,trainer):
