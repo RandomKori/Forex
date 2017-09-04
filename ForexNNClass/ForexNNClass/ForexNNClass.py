@@ -15,7 +15,7 @@ def nn(x):
     m=cntk.layers.Recurrence(cntk.layers.LSTM(45))(x)
     for i in range(0,20):
          m=cntk.layers.Recurrence(cntk.layers.LSTM(200))(m)
-    m=cntk.layers.Recurrence(cntk.layers.LSTM(4))(m)
+    m=cntk.layers.Recurrence(cntk.layers.LSTM(4,activation=cntk.softmax))(m)
     return m
 
 input_var = cntk.input_variable(45,np.float32, name = 'features',dynamic_axes=cntk.axis.Axis.default_input_variable_dynamic_axes())
@@ -64,7 +64,6 @@ def test(streamf):
         if not dat1:
             break
         evaluator.test_minibatch(dat1)
-        print(dat1[label_var])
     evaluator.summarize_test_progress()
 
 
