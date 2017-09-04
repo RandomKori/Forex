@@ -28,7 +28,7 @@ def train(streamf):
     error=cntk.squared_error(net,label_var)
     learning_rate=0.001
     lr_schedule=cntk.learning_rate_schedule(learning_rate,cntk.UnitType.minibatch)
-    momentum_time_constant = cntk.momentum_as_time_constant_schedule(140 / -np.math.log(0.9))
+    momentum_time_constant = cntk.momentum_as_time_constant_schedule(700)
     learner=cntk.fsadagrad(net.parameters,lr=lr_schedule,momentum = momentum_time_constant,unit_gain = True)
     progres=cntk.logging.ProgressPrinter(0)
     trainer=cntk.Trainer(net,(loss,error),[learner],progress_writers=progres)
@@ -38,7 +38,7 @@ def train(streamf):
         
     }
     minibatch_size =  512
-    max_epochs = 1000
+    max_epochs = 100
     epoch_size = 48985
     t = 0
     for epoch in range(max_epochs):
@@ -56,7 +56,7 @@ def test(streamf):
         label_var : streamf.streams.labels   
     }
     minibatch_size =  512
-    loss = cntk.cross_entropy_with_softmax(net,label_var)
+    loss = cntk.binary_cross_entropy(net,label_var)
     progress_printer = cntk.logging.ProgressPrinter(tag='Evaluation', num_epochs=0)
     evaluator = cntk.eval.Evaluator(loss, progress_printer)
     while True:

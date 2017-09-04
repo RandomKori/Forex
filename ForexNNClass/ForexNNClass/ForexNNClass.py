@@ -5,7 +5,7 @@ import cntk
 def LoadData(fn,is_training):
     n=".\\Data\\"+fn
     datainp=cntk.io.StreamDef("features",45)
-    dataout=cntk.io.StreamDef("labels",1,is_sparse=True)
+    dataout=cntk.io.StreamDef("labels",4,is_sparse=True)
     dataall=cntk.io.StreamDefs(features=datainp,labels=dataout)
     st=cntk.io.CTFDeserializer(n,dataall)
     mbs=cntk.io.MinibatchSource(st,randomize = is_training,max_sweeps = cntk.io.INFINITELY_REPEAT if is_training else 1)
@@ -15,11 +15,11 @@ def nn(x):
     m=cntk.layers.Recurrence(cntk.layers.LSTM(45))(x)
     for i in range(0,20):
          m=cntk.layers.Recurrence(cntk.layers.LSTM(200))(m)
-    m=cntk.layers.Recurrence(cntk.layers.LSTM(1))(m)
+    m=cntk.layers.Recurrence(cntk.layers.LSTM(4))(m)
     return m
 
 input_var = cntk.input_variable(45,np.float32, name = 'features',dynamic_axes=cntk.axis.Axis.default_input_variable_dynamic_axes())
-label_var=cntk.sequence.input_variable(1)
+label_var=cntk.input_variable(4,np.float32, name = 'labels',dynamic_axes=cntk.axis.Axis.default_input_variable_dynamic_axes())
 
 def train(streamf):
     global net
@@ -38,7 +38,7 @@ def train(streamf):
         
     }
     minibatch_size =  512
-    max_epochs = 1000
+    max_epochs = 100
     epoch_size = 48985
     t = 0
     for epoch in range(max_epochs):
@@ -55,7 +55,7 @@ def test(streamf):
         input_var : streamf.streams.features,
         label_var : streamf.streams.labels   
     }
-    minibatch_size =  512
+    minibatch_size =  64
     loss = cntk.cross_entropy_with_softmax(net,label_var)
     progress_printer = cntk.logging.ProgressPrinter(tag='Evaluation', num_epochs=0)
     evaluator = cntk.eval.Evaluator(loss, progress_printer)
@@ -64,6 +64,7 @@ def test(streamf):
         if not dat1:
             break
         evaluator.test_minibatch(dat1)
+        print(dat1[label_var])
     evaluator.summarize_test_progress()
 
 
