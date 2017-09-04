@@ -35,8 +35,8 @@ def train(streamf):
         label_var : streamf.streams.labels
         
     }
-    minibatch_size =  5000
-    num_samples_per_sweep = 5000
+    minibatch_size =  512
+    num_samples_per_sweep = 50000
     for i in range(0,num_samples_per_sweep):
         dat1=streamf.next_minibatch(minibatch_size,input_map = input_map)
         trainer.train_minibatch(dat1)
