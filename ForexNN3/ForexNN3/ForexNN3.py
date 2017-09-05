@@ -12,14 +12,14 @@ def LoadData(fn,is_training):
     return mbs
 
 def nn(x):
-    m=cntk.layers.Recurrence(cntk.layers.LSTM(45))(x)
+    m=cntk.layers.Recurrence(cntk.layers.RNNStep(45,activation=cntk.tanh))(x)
     for i in range(0,20):
-         m=cntk.layers.Recurrence(cntk.layers.LSTM(200))(m)
-    m=cntk.layers.Recurrence(cntk.layers.LSTM(3))(m)
+         m=cntk.layers.Recurrence(cntk.layers.RNNStep(45,activation=cntk.tanh))(m)
+    m=cntk.layers.Recurrence(cntk.layers.RNNStep(3,activation=cntk.tanh))(m)
     return m
 
 input_var = cntk.input_variable(45,np.float32, name = 'features',dynamic_axes=cntk.axis.Axis.default_input_variable_dynamic_axes())
-label_var=cntk.input_variable(2,np.float32, name = 'labels',dynamic_axes=cntk.axis.Axis.default_input_variable_dynamic_axes())
+label_var=cntk.input_variable(3,np.float32, name = 'labels',dynamic_axes=cntk.axis.Axis.default_input_variable_dynamic_axes())
 
 def train(streamf):
     global net
@@ -38,7 +38,7 @@ def train(streamf):
         
     }
     minibatch_size =  512
-    max_epochs = 1000
+    max_epochs = 100
     epoch_size = 48985
     t = 0
     for epoch in range(max_epochs):
@@ -56,7 +56,7 @@ def test(streamf):
         label_var : streamf.streams.labels   
     }
     minibatch_size =  512
-    loss = cntk.cross_entropy_with_softmax(net,label_var)
+    loss = cntk.binary_cross_entropy(net,label_var)
     progress_printer = cntk.logging.ProgressPrinter(tag='Evaluation', num_epochs=0)
     evaluator = cntk.eval.Evaluator(loss, progress_printer)
     while True:
@@ -66,11 +66,21 @@ def test(streamf):
         evaluator.test_minibatch(dat1)
     evaluator.summarize_test_progress()
 
+def teval(streamf,trainer):
+    model=trainer.model
+    mb = streamf.next_minibatch(1000)
+    output = model.eval(mb[streamf.streams['features']])
+    for i in range(0,1000):
+        print(output[i])
+
 data=LoadData("train.txt",True)
 model1=train(data)
 md=model1.model
 md.save(".\\Model\\model.cmf")
 data1=LoadData("test.txt",False)
 test(data1)
+print("========================")
+data2=LoadData("test.txt",False)
+teval(data2,model1)
 g=input("Нажмите любую клавишу")
 

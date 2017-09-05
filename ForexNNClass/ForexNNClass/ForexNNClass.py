@@ -12,10 +12,10 @@ def LoadData(fn,is_training):
     return mbs
 
 def nn(x):
-    m=cntk.layers.Recurrence(cntk.layers.LSTM(45))(x)
+    m=cntk.layers.Recurrence(cntk.layers.LSTM(45,activation=cntk.tanh))(x)
     for i in range(0,20):
-         m=cntk.layers.Recurrence(cntk.layers.LSTM(200))(m)
-    m=cntk.layers.Recurrence(cntk.layers.LSTM(4,activation=cntk.softmax))(m)
+         m=cntk.layers.Recurrence(cntk.layers.LSTM(200,activation=cntk.tanh))(m)
+    m=cntk.layers.Recurrence(cntk.layers.LSTM(4,activation=cntk.tanh))(m)
     return m
 
 input_var = cntk.input_variable(45,np.float32, name = 'features',dynamic_axes=cntk.axis.Axis.default_input_variable_dynamic_axes())
@@ -66,6 +66,13 @@ def test(streamf):
         evaluator.test_minibatch(dat1)
     evaluator.summarize_test_progress()
 
+def teval(streamf,trainer):
+    model=trainer.model
+    mb = streamf.next_minibatch(1000)
+    output = model.eval(mb[streamf.streams['features']])
+    for i in range(0,1000):
+        print(output[i])
+
 
 data=LoadData("train.txt",True)
 model1=train(data)
@@ -74,4 +81,7 @@ md.save(".\\Model\\model.cmf")
 print("========================")
 data1=LoadData("test.txt",False)
 test(data1)
+print("========================")
+data2=LoadData("test.txt",False)
+teval(data2,model1)
 g=input("Нажмите любую клавишу")
