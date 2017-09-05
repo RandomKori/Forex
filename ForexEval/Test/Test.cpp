@@ -23,16 +23,16 @@ int main()
 
 	}
 	std::vector<float> v(45);
-	std::vector <float> v1(4);
+	std::vector <float> v1(3);
 	for (int i = 0; i < 45; i++)
 		v[i] = 0.5;
 	ValuePtr inps;
 	ValuePtr outs;
 	DeviceDescriptor d = DeviceDescriptor::UseDefaultDevice();
 	auto var1 = InputVariable(NDShape({ 45 }), DataType::Float, L"features");
-	auto var2 = OutputVariable(NDShape({ 4 }), DataType::Float, { Axis::DefaultBatchAxis() }, L"labels");
+	auto var2 = OutputVariable(NDShape({ 3 }), DataType::Float, { Axis::DefaultBatchAxis() }, L"labels");
 	inps = Value::CreateBatch(NDShape({ 45 }), v, d);
-	outs = Value::CreateBatch(NDShape({ 4 }), v1, d);
+	outs = Value::CreateBatch(NDShape({ 3 }), v1, d);
 	std::unordered_map<Variable, ValuePtr> inputLayer = { { var1, inps } };
 	std::unordered_map<Variable, ValuePtr> outputLayer = { { var2, outs } };
 	try
