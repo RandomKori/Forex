@@ -55,7 +55,7 @@ def test(streamf):
         input_var : streamf.streams.features,
         label_var : streamf.streams.labels   
     }
-    minibatch_size =  512
+    minibatch_size =  32
     loss = cntk.losses.cross_entropy_with_softmax(net,label_var)
     progress_printer = cntk.logging.ProgressPrinter(tag='Evaluation', num_epochs=0)
     evaluator = cntk.eval.Evaluator(loss, progress_printer)

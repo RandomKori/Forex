@@ -56,7 +56,7 @@ def test(streamf):
         input_var : streamf.streams.features,
         label_var : streamf.streams.labels   
     }
-    minibatch_size =  512
+    minibatch_size =  32
     loss = cntk.squared_error(net,label_var)
     progress_printer = cntk.logging.ProgressPrinter(tag='Evaluation', num_epochs=0)
     evaluator = cntk.eval.Evaluator(loss, progress_printer)
@@ -64,7 +64,8 @@ def test(streamf):
         dat1=streamf.next_minibatch(minibatch_size,input_map = input_map)
         if not dat1:
             break
-        evaluator.test_minibatch(dat1)
+        eval_error = evaluator.test_minibatch(dat1)
+        print("mse for {:.6f}".format(eval_error))
     evaluator.summarize_test_progress()
 
 data=LoadData("train.txt",True)
