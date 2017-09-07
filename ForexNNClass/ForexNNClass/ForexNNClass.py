@@ -56,7 +56,7 @@ def test(streamf):
         label_var : streamf.streams.labels   
     }
     minibatch_size =  32
-    loss = cntk.losses.classification_error(net,label_var)
+    loss = cntk.classification_error(net,label_var)
     progress_printer = cntk.logging.ProgressPrinter(tag='Evaluation', num_epochs=0)
     evaluator = cntk.eval.Evaluator(loss, progress_printer)
     while True:
