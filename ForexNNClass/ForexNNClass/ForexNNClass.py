@@ -15,21 +15,22 @@ def LoadData(fn,is_training):
 def nn(x):
     m=cntk.layers.Stabilizer()(x)
     for i in range(0,20):
-         m=cntk.layers.Recurrence(cntk.layers.LSTM(45))(m)
-    m=cntk.layers.Recurrence(cntk.layers.LSTM(3,activation=cntk.softmax))(m)
+         m=cntk.layers.Recurrence(cntk.layers.LSTM(100))(m)
+    m=cntk.sequence.last(m)
+    m=cntk.layers.Dense(3)(m)
     return m
 
 input_var = cntk.input_variable(45,np.float32, name = 'features',dynamic_axes=cntk.axis.Axis.default_input_variable_dynamic_axes())
-label_var=cntk.input_variable(3,np.float32, name = 'labels',dynamic_axes=cntk.axis.Axis.default_input_variable_dynamic_axes())
+label_var=cntk.input_variable(3,np.float32, name = 'labels')
 
 def train(streamf):
     global net
     net=nn(input_var)
-    loss = cntk.classification_error(net,label_var)
+    loss = cntk.cross_entropy_with_softmax(net,label_var)
     error=cntk.classification_error(net,label_var)
-    learning_rate=0.001
+    learning_rate=5.0
     lr_schedule=cntk.learning_rate_schedule(learning_rate,cntk.UnitType.minibatch)
-    learner=cntk.adadelta(net.parameters,lr_schedule,0.5,0.5)
+    learner=cntk.adadelta(net.parameters,lr_schedule,0.5,0.1)
     progres=cntk.logging.ProgressPrinter(0)
     trainer=cntk.Trainer(net,(loss,error),[learner],progress_writers=progres)
     input_map={
@@ -56,7 +57,7 @@ def test(streamf):
         label_var : streamf.streams.labels   
     }
     minibatch_size =  32
-    loss = cntk.classification_error(net,label_var)
+    loss = cntk.cross_entropy_with_softmax(net,label_var)
     progress_printer = cntk.logging.ProgressPrinter(tag='Evaluation', num_epochs=0)
     evaluator = cntk.eval.Evaluator(loss, progress_printer)
     while True:
