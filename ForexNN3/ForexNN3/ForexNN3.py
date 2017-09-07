@@ -25,7 +25,7 @@ label_var=cntk.input_variable(3,np.float32, name = 'labels',dynamic_axes=cntk.ax
 def train(streamf):
     global net
     net=nn(input_var)
-    loss = cntk.squared_error(net,label_var)
+    loss = cntk.losses.squared_error(net,label_var)
     error=cntk.squared_error(net,label_var)
     learning_rate=0.001
     lr_schedule=cntk.learning_rate_schedule(learning_rate,cntk.UnitType.minibatch)
@@ -57,7 +57,7 @@ def test(streamf):
         label_var : streamf.streams.labels   
     }
     minibatch_size =  32
-    loss = cntk.squared_error(net,label_var)
+    loss = cntk.losses.squared_error(net,label_var)
     progress_printer = cntk.logging.ProgressPrinter(tag='Evaluation', num_epochs=0)
     evaluator = cntk.eval.Evaluator(loss, progress_printer)
     while True:
@@ -65,7 +65,6 @@ def test(streamf):
         if not dat1:
             break
         eval_error = evaluator.test_minibatch(dat1)
-        print("mse for {:.6f}".format(eval_error))
     evaluator.summarize_test_progress()
 
 data=LoadData("train.txt",True)
