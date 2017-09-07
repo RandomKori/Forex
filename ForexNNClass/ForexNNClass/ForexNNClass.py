@@ -39,7 +39,7 @@ def train(streamf):
         
     }
     minibatch_size =  512
-    max_epochs = 200
+    max_epochs = 10
     epoch_size = 48985
     t = 0
     for epoch in range(max_epochs):
@@ -67,15 +67,6 @@ def test(streamf):
         evaluator.test_minibatch(dat1)
     evaluator.summarize_test_progress()
 
-def teval(streamf,trainer):
-    z = load_model(".\\Model\\model.cmf")
-    mb = streamf.next_minibatch(1000)
-    output = z.eval(mb[streamf.streams['features']].data.asarray())
-    print(mb[streamf.streams['features']].data.asarray())
-    print("===============================")
-    for i in range(len(output)):
-        print(output[i])
-
 
 data=LoadData("train.txt",True)
 model1=train(data)
@@ -84,7 +75,4 @@ md.save(".\\Model\\model.cmf")
 print("========================")
 data1=LoadData("test.txt",False)
 test(data1)
-print("========================")
-data2=LoadData("test.txt",False)
-teval(data2,model1)
 g=input("Нажмите любую клавишу")
