@@ -28,8 +28,8 @@ label_var=cntk.sequence.input_variable(3,np.float32, name = 'labels')
 
 def train(streamf):
     global net
-    minibatch_size =  256
-    max_epochs = 5000
+    minibatch_size =  512
+    max_epochs = 200
     epoch_size = 48985
     net=nn(input_var)
     loss = cntk.losses.cross_entropy_with_softmax(net,label_var)
@@ -62,7 +62,7 @@ def test(streamf):
         label_var : streamf.streams.labels   
     }
     minibatch_size =  32
-    loss = cntk.losses.cross_entropy_with_softmax(net,label_var)
+    loss = cntk.classification_error(net,label_var)
     progress_printer = cntk.logging.ProgressPrinter(tag='Evaluation', num_epochs=0)
     evaluator = cntk.eval.Evaluator(loss, progress_printer)
     while True:
