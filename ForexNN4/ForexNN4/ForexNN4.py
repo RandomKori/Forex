@@ -6,26 +6,35 @@ from cntk.ops.functions import load_model
 def LoadData(fn,is_training):
     n=".\\Data\\"+fn
     datainp=cntk.io.StreamDef("features",45)
-    dataout=cntk.io.StreamDef("labels",2)
+    dataout=cntk.io.StreamDef("labels",3)
     dataall=cntk.io.StreamDefs(features=datainp,labels=dataout)
     st=cntk.io.CTFDeserializer(n,dataall)
     mbs=cntk.io.MinibatchSource(st,randomize = is_training,max_sweeps = cntk.io.INFINITELY_REPEAT if is_training else 1)
     return mbs
 
 def nn(x):
-    m=cntk.layers.Stabilizer()(x)
-    for i in range(0,20):
-         m=cntk.layers.Recurrence(cntk.layers.RNNStep(45,activation=cntk.tanh))(m)
-    m=cntk.layers.Recurrence(cntk.layers.RNNStep(2,activation=cntk.tanh))(m)
-    return m
+    m=cntk.layers.Sequential([
+        cntk.layers.Stabilizer(),
+        cntk.layers.Recurrence(cntk.layers.LSTM(150)),
+        cntk.layers.Recurrence(cntk.layers.LSTM(150)),
+        cntk.layers.Recurrence(cntk.layers.LSTM(150)),
+        cntk.layers.Recurrence(cntk.layers.LSTM(150)),
+        cntk.layers.Recurrence(cntk.layers.LSTM(150)),
+        cntk.layers.Recurrence(cntk.layers.LSTM(150)),
+        cntk.layers.Recurrence(cntk.layers.LSTM(150)),
+        cntk.layers.Recurrence(cntk.layers.LSTM(150)),
+        cntk.layers.Recurrence(cntk.layers.LSTM(150)),
+        cntk.layers.Recurrence(cntk.layers.LSTM(150)),
+        cntk.layers.Recurrence(cntk.layers.LSTM(3))])
+    return m(x)
 
-input_var = cntk.input_variable(45,np.float32, name = 'features',dynamic_axes=cntk.axis.Axis.default_input_variable_dynamic_axes())
-label_var=cntk.input_variable(2,np.float32, name = 'labels',dynamic_axes=cntk.axis.Axis.default_input_variable_dynamic_axes())
+input_var = cntk.sequence.input_variable(45,np.float32, name = 'features')
+label_var=cntk.sequence.input_variable(3,np.float32, name = 'labels')
 
 def train(streamf):
     global net
     net=nn(input_var)
-    loss = cntk.squared_error(net,label_var)
+    loss = cntk.losses.squared_error(net,label_var)
     error=cntk.squared_error(net,label_var)
     learning_rate=0.001
     lr_schedule=cntk.learning_rate_schedule(learning_rate,cntk.UnitType.minibatch)
@@ -56,15 +65,15 @@ def test(streamf):
         input_var : streamf.streams.features,
         label_var : streamf.streams.labels   
     }
-    minibatch_size =  512
-    loss = cntk.squared_error(net,label_var)
+    minibatch_size =  32
+    loss = cntk.losses.squared_error(net,label_var)
     progress_printer = cntk.logging.ProgressPrinter(tag='Evaluation', num_epochs=0)
     evaluator = cntk.eval.Evaluator(loss, progress_printer)
     while True:
         dat1=streamf.next_minibatch(minibatch_size,input_map = input_map)
         if not dat1:
             break
-        evaluator.test_minibatch(dat1)
+        eval_error = evaluator.test_minibatch(dat1)
     evaluator.summarize_test_progress()
 
 data=LoadData("train.txt",True)

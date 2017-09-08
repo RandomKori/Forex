@@ -31,8 +31,8 @@ int main()
 	DeviceDescriptor d = DeviceDescriptor::UseDefaultDevice();
 	auto var1 = InputVariable(NDShape({ 45 }), DataType::Float, L"features");
 	auto var2 = OutputVariable(NDShape({ 3 }), DataType::Float, { Axis::DefaultBatchAxis() }, L"labels");
-	inps = Value::CreateBatch(NDShape({ 45 }), v, d);
-	outs = Value::CreateBatch(NDShape({ 3 }), v1, d);
+	inps = Value::CreateSequence(NDShape({ 45 }), v, d);
+	outs = Value::CreateSequence(NDShape({ 3 }), v1, d);
 	std::unordered_map<Variable, ValuePtr> inputLayer = { { var1, inps } };
 	std::unordered_map<Variable, ValuePtr> outputLayer = { { var2, outs } };
 	try
