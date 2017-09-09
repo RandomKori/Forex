@@ -5,7 +5,7 @@ from cntk.ops.functions import load_model
 
 def LoadData(fn,is_training):
     n=".\\Data\\"+fn
-    datainp=cntk.io.StreamDef("features",30)
+    datainp=cntk.io.StreamDef("features",45)
     dataall=cntk.io.StreamDefs(features=datainp)
     st=cntk.io.CTFDeserializer(n,dataall)
     mbs=cntk.io.MinibatchSource(st,randomize = is_training,max_sweeps = cntk.io.INFINITELY_REPEAT if is_training else 1)
