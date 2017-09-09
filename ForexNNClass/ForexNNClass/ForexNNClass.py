@@ -29,7 +29,7 @@ label_var=cntk.sequence.input_variable(3,np.float32, name = 'labels')
 def train(streamf):
     global net
     minibatch_size =  512
-    max_epochs = 200
+    max_epochs = 500
     epoch_size = 48985
     net=nn(input_var)
     loss = cntk.losses.cross_entropy_with_softmax(net,label_var)
