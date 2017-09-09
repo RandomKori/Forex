@@ -20,7 +20,7 @@ def nn(x):
         cntk.layers.Recurrence(cntk.layers.LSTM(150,activation=cntk.tanh)),
         cntk.layers.Recurrence(cntk.layers.LSTM(150,activation=cntk.tanh)),
         cntk.layers.Recurrence(cntk.layers.LSTM(150,activation=cntk.tanh)),
-        cntk.layers.Recurrence(cntk.layers.LSTM(3,activation=cntk.tanh))])
+        cntk.layers.Recurrence(cntk.layers.LSTM(3,activation=cntk.softmax))])
     return m(x)
 
 input_var = cntk.sequence.input_variable(30,np.float32, name = 'features')
