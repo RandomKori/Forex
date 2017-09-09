@@ -1,0 +1,23 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 15
+VisualStudioVersion = 15.0.26730.12
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{888888A0-9F3D-457C-B088-3A5042F75D52}") = "EvalNN3Pythom", "EvalNN3Pythom\EvalNN3Pythom.pyproj", "{C0EBE0C9-FA81-49B7-BA38-0D00D75CC8DF}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{C0EBE0C9-FA81-49B7-BA38-0D00D75CC8DF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C0EBE0C9-FA81-49B7-BA38-0D00D75CC8DF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {1FA33D2A-4782-4F93-B185-7545AAB3A865}
+	EndGlobalSection
+EndGlobal

@@ -15,12 +15,12 @@ def LoadData(fn,is_training):
 def nn(x):
     m=cntk.layers.Sequential([
         cntk.layers.Stabilizer(),
-        cntk.layers.Recurrence(cntk.layers.LSTM(150)),
-        cntk.layers.Recurrence(cntk.layers.LSTM(150)),
-        cntk.layers.Recurrence(cntk.layers.LSTM(150)),
-        cntk.layers.Recurrence(cntk.layers.LSTM(150)),
-        cntk.layers.Recurrence(cntk.layers.LSTM(150)),
-        cntk.layers.Dense(3)])
+        cntk.layers.Recurrence(cntk.layers.LSTM(150,activation=cntk.tanh)),
+        cntk.layers.Recurrence(cntk.layers.LSTM(150,activation=cntk.tanh)),
+        cntk.layers.Recurrence(cntk.layers.LSTM(150,activation=cntk.tanh)),
+        cntk.layers.Recurrence(cntk.layers.LSTM(150,activation=cntk.tanh)),
+        cntk.layers.Recurrence(cntk.layers.LSTM(150,activation=cntk.tanh)),
+        cntk.layers.Recurrence(cntk.layers.LSTM(3,activation=cntk.tanh))])
     return m(x)
 
 input_var = cntk.sequence.input_variable(30,np.float32, name = 'features')
@@ -62,7 +62,7 @@ def test(streamf):
         label_var : streamf.streams.labels   
     }
     minibatch_size =  32
-    loss = cntk.classification_error(net,label_var)
+    loss = cntk.losses.cross_entropy_with_softmax(net,label_var)
     progress_printer = cntk.logging.ProgressPrinter(tag='Evaluation', num_epochs=0)
     evaluator = cntk.eval.Evaluator(loss, progress_printer)
     while True:
@@ -72,6 +72,16 @@ def test(streamf):
         evaluator.test_minibatch(dat1)
     evaluator.summarize_test_progress()
 
+def feval(streamf):
+    z=load_model(".\\Model\\model.cmf")
+    input_map={
+        z.arguments[0] : streamf.streams.features,     
+    }
+    dat1=streamf.next_minibatch(32,input_map = input_map)
+    output=z.eval(dat1)
+    for i in range(len(output)):
+        print(output[i])
+
 
 data=LoadData("train.txt",True)
 model1=train(data)
@@ -80,4 +90,6 @@ md.save(".\\Model\\model.cmf")
 print("========================")
 data1=LoadData("test.txt",False)
 test(data1)
+data2=LoadData("test.txt",False)
+feval(data2)
 g=input("Нажмите любую клавишу")
