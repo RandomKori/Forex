@@ -14,23 +14,22 @@ def LoadData(fn,is_training):
 
 def nn(x):
     m=cntk.layers.Stabilizer()(x)
-    for i in range(0,10):
-         m=cntk.layers.Recurrence(cntk.layers.LSTM(150,activation=cntk.tanh))(m)
-    m=cntk.sequence.last(m)
-    m=cntk.layers.Dense(3,activation=cntk.tanh)(m)
+    for i in range(0,5):
+         m=cntk.layers.Recurrence(cntk.layers.LSTM(150))(m)
+    m=cntk.layers.Recurrence(cntk.layers.LSTM(3))(m)
     return m
 
 input_var = cntk.input_variable(45,np.float32, name = 'features',dynamic_axes=cntk.axis.Axis.default_input_variable_dynamic_axes())
-label_var=cntk.input_variable(3,np.float32, name = 'labels')
+label_var=cntk.input_variable(3,np.float32, name = 'labels',dynamic_axes=cntk.axis.Axis.default_input_variable_dynamic_axes())
 
 
 def train(streamf):
     global net
-    minibatch_size =  256
+    minibatch_size =  1024
     max_epochs = 200
     epoch_size = 48985
     net=nn(input_var)
-    loss = cntk.losses.cross_entropy_with_softmax(net,label_var)
+    loss = cntk.losses.squared_error(net,label_var)
     error=cntk.classification_error(net,label_var)
     lr_per_sample = [3e-4]*4+[1.5e-4]
     lr_per_minibatch = [lr * minibatch_size for lr in lr_per_sample]
@@ -75,7 +74,7 @@ def feval(streamf):
     input_map={
         z.arguments[0] : streamf.streams.features,     
     }
-    dat1=streamf.next_minibatch(50,input_map = input_map)
+    dat1=streamf.next_minibatch(1000,input_map = input_map)
     output=z.eval(dat1)
     for i in range(len(output)):
         print(output[i])
