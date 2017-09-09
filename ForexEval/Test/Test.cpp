@@ -29,12 +29,11 @@ int main()
 	ValuePtr inps;
 	ValuePtr outs;
 	DeviceDescriptor d = DeviceDescriptor::UseDefaultDevice();
-	auto var1 = model->Inputs.Arguments();
-	auto var2 = OutputVariable(NDShape({ 3 }), DataType::Float, { Axis::DefaultBatchAxis() }, L"labels");
-	inps = Value::CreateSequence(NDShape({ 45 }), v, d);
-	outs = Value::CreateSequence(NDShape({ 3 }), v1, d);
+	auto var1 = model->Inputs();
+	inps = Value::CreateBatch(NDShape({ 45 }), v, d);
+	outs = Value::CreateBatch(NDShape({ 3 }), v1, d);
 	std::unordered_map<Variable, ValuePtr> inputLayer = { { var1[0], inps } };
-	std::unordered_map<Variable, ValuePtr> outputLayer = { { var2, outs } };
+	std::unordered_map<Variable, ValuePtr> outputLayer = { { var1[1], outs } };
 	try
 	{
 		model->Evaluate(inputLayer, outputLayer);
