@@ -288,9 +288,4 @@ __pycache__/
 *.xsd.cs
 *.txt
 *.cmf
-*.txt
-ForexNN1/ForexNN1/Data/test.txt
-ForexNN1/ForexNN1/Data/test.txt
-ForexNN3/ForexNN3/Data/test.txt
-ForexNN3/ForexNN3/Data/train.txt
-ForexNN3/ForexNN3/Model/model.cmf
+
