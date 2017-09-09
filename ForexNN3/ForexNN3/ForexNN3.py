@@ -16,11 +16,12 @@ def nn(x):
     m=cntk.layers.Stabilizer()(x)
     for i in range(0,20):
          m=cntk.layers.Recurrence(cntk.layers.RNNStep(45,activation=cntk.tanh))(m)
-    m=cntk.layers.Recurrence(cntk.layers.RNNStep(3,activation=cntk.tanh))(m)
+    m=cntk.sequence.last(m)
+    m=cntk.layers.Dense(3,activation=cntk.tanh)(m)
     return m
 
 input_var = cntk.input_variable(45,np.float32, name = 'features',dynamic_axes=cntk.axis.Axis.default_input_variable_dynamic_axes())
-label_var=cntk.input_variable(3,np.float32, name = 'labels',dynamic_axes=cntk.axis.Axis.default_input_variable_dynamic_axes())
+label_var=cntk.input_variable(3,np.float32, name = 'labels')
 
 def train(streamf):
     global net

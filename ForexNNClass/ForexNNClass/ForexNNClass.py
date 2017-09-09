@@ -5,7 +5,7 @@ from cntk.ops.functions import load_model
 
 def LoadData(fn,is_training):
     n=".\\Data\\"+fn
-    datainp=cntk.io.StreamDef("features",30)
+    datainp=cntk.io.StreamDef("features",45)
     dataout=cntk.io.StreamDef("labels",3,is_sparse=True)
     dataall=cntk.io.StreamDefs(features=datainp,labels=dataout)
     st=cntk.io.CTFDeserializer(n,dataall)
@@ -15,21 +15,21 @@ def LoadData(fn,is_training):
 def nn(x):
     m=cntk.layers.Sequential([
         cntk.layers.Stabilizer(),
-        cntk.layers.Recurrence(cntk.layers.LSTM(150,activation=cntk.sigmoid)),
-        cntk.layers.Recurrence(cntk.layers.LSTM(150,activation=cntk.sigmoid)),
-        cntk.layers.Recurrence(cntk.layers.LSTM(150,activation=cntk.sigmoid)),
-        cntk.layers.Recurrence(cntk.layers.LSTM(150,activation=cntk.sigmoid)),
-        cntk.layers.Recurrence(cntk.layers.LSTM(150,activation=cntk.sigmoid)),
-        cntk.layers.Recurrence(cntk.layers.LSTM(3,activation=cntk.softmax))])
+        cntk.layers.Recurrence(cntk.layers.LSTM(150)),
+        cntk.layers.Recurrence(cntk.layers.LSTM(150)),
+        cntk.layers.Recurrence(cntk.layers.LSTM(150)),
+        cntk.layers.Recurrence(cntk.layers.LSTM(150)),
+        cntk.layers.Recurrence(cntk.layers.LSTM(150)),
+        cntk.layers.Recurrence(cntk.layers.LSTM(3))])
     return m(x)
 
-input_var = cntk.sequence.input_variable(30,np.float32, name = 'features')
+input_var = cntk.sequence.input_variable(45,np.float32, name = 'features')
 label_var=cntk.sequence.input_variable(3,np.float32, name = 'labels')
 
 def train(streamf):
     global net
-    minibatch_size =  512
-    max_epochs = 500
+    minibatch_size =  256
+    max_epochs = 3000
     epoch_size = 48985
     net=nn(input_var)
     loss = cntk.losses.cross_entropy_with_softmax(net,label_var)
