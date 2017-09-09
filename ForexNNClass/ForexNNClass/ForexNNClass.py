@@ -15,11 +15,11 @@ def LoadData(fn,is_training):
 def nn(x):
     m=cntk.layers.Sequential([
         cntk.layers.Stabilizer(),
-        cntk.layers.Recurrence(cntk.layers.LSTM(150,activation=cntk.tanh)),
-        cntk.layers.Recurrence(cntk.layers.LSTM(150,activation=cntk.tanh)),
-        cntk.layers.Recurrence(cntk.layers.LSTM(150,activation=cntk.tanh)),
-        cntk.layers.Recurrence(cntk.layers.LSTM(150,activation=cntk.tanh)),
-        cntk.layers.Recurrence(cntk.layers.LSTM(150,activation=cntk.tanh)),
+        cntk.layers.Recurrence(cntk.layers.LSTM(150,activation=cntk.sigmoid)),
+        cntk.layers.Recurrence(cntk.layers.LSTM(150,activation=cntk.sigmoid)),
+        cntk.layers.Recurrence(cntk.layers.LSTM(150,activation=cntk.sigmoid)),
+        cntk.layers.Recurrence(cntk.layers.LSTM(150,activation=cntk.sigmoid)),
+        cntk.layers.Recurrence(cntk.layers.LSTM(150,activation=cntk.sigmoid)),
         cntk.layers.Recurrence(cntk.layers.LSTM(3,activation=cntk.softmax))])
     return m(x)
 
@@ -77,7 +77,7 @@ def feval(streamf):
     input_map={
         z.arguments[0] : streamf.streams.features,     
     }
-    dat1=streamf.next_minibatch(32,input_map = input_map)
+    dat1=streamf.next_minibatch(50,input_map = input_map)
     output=z.eval(dat1)
     for i in range(len(output)):
         print(output[i])
