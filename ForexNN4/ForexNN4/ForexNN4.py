@@ -5,8 +5,8 @@ from cntk.ops.functions import load_model
 
 def LoadData(fn,is_training):
     n=".\\Data\\"+fn
-    datainp=cntk.io.StreamDef("features",45)
-    dataout=cntk.io.StreamDef("labels",3)
+    datainp=cntk.io.StreamDef("features",30)
+    dataout=cntk.io.StreamDef("labels",2)
     dataall=cntk.io.StreamDefs(features=datainp,labels=dataout)
     st=cntk.io.CTFDeserializer(n,dataall)
     mbs=cntk.io.MinibatchSource(st,randomize = is_training,max_sweeps = cntk.io.INFINITELY_REPEAT if is_training else 1)
@@ -25,11 +25,11 @@ def nn(x):
         cntk.layers.Recurrence(cntk.layers.LSTM(150)),
         cntk.layers.Recurrence(cntk.layers.LSTM(150)),
         cntk.layers.Recurrence(cntk.layers.LSTM(150)),
-        cntk.layers.Recurrence(cntk.layers.LSTM(3))])
+        cntk.layers.Recurrence(cntk.layers.LSTM(2))])
     return m(x)
 
-input_var = cntk.sequence.input_variable(45,np.float32, name = 'features')
-label_var=cntk.sequence.input_variable(3,np.float32, name = 'labels')
+input_var = cntk.sequence.input_variable(30,np.float32, name = 'features')
+label_var=cntk.sequence.input_variable(2,np.float32, name = 'labels')
 
 def train(streamf):
     global net
@@ -47,7 +47,7 @@ def train(streamf):
         label_var : streamf.streams.labels
         
     }
-    minibatch_size =  512
+    minibatch_size =  
     max_epochs = 200
     epoch_size = 48985
     t = 0
