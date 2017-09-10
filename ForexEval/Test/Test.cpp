@@ -22,17 +22,17 @@ int main()
 	{
 
 	}
-	std::vector<float> v(45);
+	std::vector<float> v(30);
 	const std::vector<float> v1(3);
 	std::vector<std::vector<float>> v2(1,v1);
-	for (int i = 0; i < 45; i++)
+	for (int i = 0; i < 30; i++)
 		v[i] = 0.5;
 	ValuePtr inps;
 	ValuePtr outs;
 	DeviceDescriptor d = DeviceDescriptor::UseDefaultDevice();
 	auto var1 = model->Arguments();
 	auto var2 = model->Output();
-	inps = Value::CreateBatch(NDShape({ 45 }), v, d, false);
+	inps = Value::CreateBatch(NDShape({ 30 }), v, d, false);
 	std::unordered_map<Variable, ValuePtr> inputLayer = { { var1[0], inps } };
 	std::unordered_map<Variable, ValuePtr> outputLayer = { { var2, outs } };
 	try
