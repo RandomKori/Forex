@@ -5,7 +5,7 @@ from cntk.ops.functions import load_model
 
 def LoadData(fn,is_training):
     n=".\\Data\\"+fn
-    datainp=cntk.io.StreamDef("features",45)
+    datainp=cntk.io.StreamDef("features",30)
     dataout=cntk.io.StreamDef("labels",3,is_sparse=True)
     dataall=cntk.io.StreamDefs(features=datainp,labels=dataout)
     st=cntk.io.CTFDeserializer(n,dataall)
@@ -16,17 +16,18 @@ def nn(x):
     m=cntk.layers.Stabilizer()(x)
     for i in range(0,5):
          m=cntk.layers.Recurrence(cntk.layers.LSTM(150))(m)
-    m=cntk.layers.Recurrence(cntk.layers.LSTM(3))(m)
+    m=cntk.sequence.last(m)
+    m=cntk.layers.Dense(3)(m)
     return m
 
-input_var = cntk.input_variable(45,np.float32, name = 'features',dynamic_axes=cntk.axis.Axis.default_input_variable_dynamic_axes())
-label_var=cntk.input_variable(3,np.float32, name = 'labels',dynamic_axes=cntk.axis.Axis.default_input_variable_dynamic_axes())
+input_var = cntk.input_variable(30,np.float32, name = 'features',dynamic_axes=cntk.axis.Axis.default_input_variable_dynamic_axes())
+label_var=cntk.input_variable(3,np.float32, name = 'labels')
 
 
 def train(streamf):
     global net
-    minibatch_size =  64
-    max_epochs = 3000
+    minibatch_size =  1024
+    max_epochs = 300
     epoch_size = 48985
     net=nn(input_var)
     loss = cntk.losses.cross_entropy_with_softmax(net,label_var)

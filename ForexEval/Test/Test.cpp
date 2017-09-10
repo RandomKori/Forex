@@ -40,6 +40,9 @@ int main()
 		model->Evaluate(inputLayer, outputLayer);
 		auto outs1 = outputLayer[var2];
 		outs1->CopyVariableValueTo(var2, v2);
+		double out[3];
+		for (int i = 0; i < 3; i++)
+			out[i] = v2[0][i];
 	}
 	catch (const std::exception& e)
 	{

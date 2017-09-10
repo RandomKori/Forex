@@ -24,7 +24,7 @@ void EvalModel(double* inp, double* out)
 	const std::vector<float> v1(2);
 	std::vector<std::vector<float>> v2(1, v1);
 	for (int i = 0; i < 45; i++)
-		v[i] = inp[i];
+		v[i] = (float)(inp[i]);
 	ValuePtr inps;
 	ValuePtr outs;
 	DeviceDescriptor d = DeviceDescriptor::UseDefaultDevice();
