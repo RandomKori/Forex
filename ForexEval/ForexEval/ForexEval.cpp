@@ -20,7 +20,8 @@ void LoadModel(wchar_t* s)
 void EvalModel(double* inp, double* out)
 {
 	std::vector<float> v(45);
-	std::vector<float> v1(3);
+	const std::vector<float> v1(3);
+	std::vector<std::vector<float>> v2(1, v1);
 	for (int i = 0; i < 45; i++)
 		v[i] = 0.5;
 	ValuePtr inps;
@@ -32,6 +33,10 @@ void EvalModel(double* inp, double* out)
 	std::unordered_map<Variable, ValuePtr> inputLayer = { { var1[0], inps } };
 	std::unordered_map<Variable, ValuePtr> outputLayer = { { var2, outs } };
 	model->Evaluate(inputLayer, outputLayer);
+	auto outs1 = outputLayer[var2];
+	outs1->CopyVariableValueTo(var2, v2);
+	for (int i = 0; i < 3; i++)
+		out[i] = v2[0][i];
 }
 
 

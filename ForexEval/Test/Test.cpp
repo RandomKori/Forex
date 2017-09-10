@@ -38,7 +38,8 @@ int main()
 	try
 	{
 		model->Evaluate(inputLayer, outputLayer);
-		outs->CopyVariableValueTo(var2, v2);
+		auto outs1 = outputLayer[var2];
+		outs1->CopyVariableValueTo(var2, v2);
 	}
 	catch (const std::exception& e)
 	{
