@@ -20,21 +20,18 @@ void LoadModel(wchar_t* s)
 void EvalModel(double* inp, double* out)
 {
 	std::vector<float> v(45);
-	std::vector <float> v1(3);
+	std::vector<float> v1(3);
 	for (int i = 0; i < 45; i++)
-		v[i] = (float)(inp[i]);
+		v[i] = 0.5;
 	ValuePtr inps;
 	ValuePtr outs;
 	DeviceDescriptor d = DeviceDescriptor::UseDefaultDevice();
-	auto var1 = InputVariable(NDShape({ 45 }), DataType::Float, L"features");
-	auto var2 = OutputVariable(NDShape({ 4 }), DataType::Float, { Axis::DefaultBatchAxis() }, L"labels");
-	inps = Value::CreateBatch(NDShape({ 45 }), v, d);
-	outs = Value::CreateBatch(NDShape({ 4 }), v1, d);
-	std::unordered_map<Variable, ValuePtr> inputLayer = { { var1, inps } };
+	auto var1 = model->Arguments();
+	auto var2 = model->Output();
+	inps = Value::CreateBatch(NDShape({ 45 }), v, d, false);
+	std::unordered_map<Variable, ValuePtr> inputLayer = { { var1[0], inps } };
 	std::unordered_map<Variable, ValuePtr> outputLayer = { { var2, outs } };
 	model->Evaluate(inputLayer, outputLayer);
-	for (int i = 0; i < 3; i++)
-		out[i] = v1[i];
 }
 
 

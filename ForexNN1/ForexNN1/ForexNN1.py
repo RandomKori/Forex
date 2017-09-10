@@ -1,33 +1,41 @@
 from __future__ import print_function
 import numpy as np
 import cntk
+from cntk.ops.functions import load_model
 
 def LoadData(fn,is_training):
     n=".\\Data\\"+fn
     datainp=cntk.io.StreamDef("features",45)
-    dataout=cntk.io.StreamDef("labels",3)
+    dataout=cntk.io.StreamDef("labels",3,is_sparse=True)
     dataall=cntk.io.StreamDefs(features=datainp,labels=dataout)
     st=cntk.io.CTFDeserializer(n,dataall)
     mbs=cntk.io.MinibatchSource(st,randomize = is_training,max_sweeps = cntk.io.INFINITELY_REPEAT if is_training else 1)
     return mbs
 
 def nn(x):
-    m=cntk.layers.Dense(60,activation=cntk.relu)(x)
+    m=cntk.layers.Dense(150,activation=cntk.tanh)(x)
     for i in range(0,5):
-        m=cntk.layers.Dense(60,activation=cntk.relu)(m)
-    m=cntk.layers.Dropout(0.5)(m)
-    m=cntk.layers.Dense(3,activation=cntk.relu)(m)
+         m=cntk.layers.Dense(150,activation=cntk.tanh)(m)
+    m=cntk.layers.Dense(3,activation=cntk.tanh)(m)
     return m
 
+input_var = cntk.input_variable(45,np.float32, name = 'features')
+label_var=cntk.input_variable(3,np.float32, name = 'labels')
+
+
 def train(streamf):
-    input_var = cntk.input_variable(45,np.float32, name = 'features')
-    label_var=cntk.input_variable(3,np.float32, name = 'labels')
+    global net
+    minibatch_size =  256
+    max_epochs = 100
+    epoch_size = 48985
     net=nn(input_var)
-    loss = cntk.squared_error(net,label_var)
-    error=cntk.squared_error(net,label_var)
-    learning_rate=0.002
-    lr_schedule=cntk.learning_rate_schedule(learning_rate,cntk.UnitType.minibatch)
-    learner=cntk.sgd(net.parameters,lr_schedule)
+    loss = cntk.losses.cross_entropy_with_softmax(net,label_var)
+    error=cntk.classification_error(net,label_var)
+    lr_per_sample = [3e-4]*4+[1.5e-4]
+    lr_per_minibatch = [lr * minibatch_size for lr in lr_per_sample]
+    lr_schedule=cntk.learning_rate_schedule(lr_per_minibatch,cntk.UnitType.minibatch)
+    momentum_as_time_constant = cntk.momentum_as_time_constant_schedule(700)
+    learner=cntk.adam(net.parameters,lr_schedule,momentum=momentum_as_time_constant,gradient_clipping_threshold_per_sample=15,gradient_clipping_with_truncation=True)
     progres=cntk.logging.ProgressPrinter(0)
     trainer=cntk.Trainer(net,(loss,error),[learner],progress_writers=progres)
     input_map={
@@ -35,39 +43,50 @@ def train(streamf):
         label_var : streamf.streams.labels
         
     }
-    minibatch_size = 5000
-    num_samples_per_sweep = 5000
-    for i in range(0,num_samples_per_sweep):
-        dat1=streamf.next_minibatch(minibatch_size,input_map = input_map)
-        trainer.train_minibatch(dat1)
-        training_loss = trainer.previous_minibatch_loss_average
-        eval_error = trainer.previous_minibatch_evaluation_average
+    t = 0
+    for epoch in range(max_epochs):
+        epoch_end = (epoch+1) * epoch_size
+        while t < epoch_end: 
+            dat1=streamf.next_minibatch(minibatch_size,input_map = input_map)
+            trainer.train_minibatch(dat1)
+            t += dat1[label_var].num_samples
+    trainer.summarize_training_progress()
     return trainer
 
-def test(streamf,trainer):
-    model=trainer.model
-    mb = streamf.next_minibatch(1000)
-    output = model.eval(mb[streamf.streams.features])
-    lsb=mb[streamf.streams.labels].data.asarray()
-    for i in range(0,1000):
-        print("[ {0} {1} {2} ]".format(output[i,0],output[i,1],output[i,2]))
-        for j in range(0,3):
-            if output[i,j]>0.5:
-                output[i,j]=1.0
-            else:
-                output[i,j]=0.0
-    err=0
-    for i1 in range(0,1000):
-        for j1 in range(0,3):
-            if lsb[i1,0,j1]!=output[i1,j1]:
-                err=err+1
-    print("Test error: {0:.4f}".format(err/1000*100))
+def test(streamf):
+    input_map={
+        input_var : streamf.streams.features,
+        label_var : streamf.streams.labels   
+    }
+    minibatch_size =  32
+    loss = cntk.losses.cross_entropy_with_softmax(net,label_var)
+    progress_printer = cntk.logging.ProgressPrinter(tag='Evaluation', num_epochs=0)
+    evaluator = cntk.eval.Evaluator(loss, progress_printer)
+    while True:
+        dat1=streamf.next_minibatch(minibatch_size,input_map = input_map)
+        if not dat1:
+            break
+        evaluator.test_minibatch(dat1)
+    evaluator.summarize_test_progress()
+
+def feval(streamf):
+    z=load_model(".\\Model\\model.cmf")
+    input_map={
+        z.arguments[0] : streamf.streams.features,     
+    }
+    dat1=streamf.next_minibatch(1000,input_map = input_map)
+    output=z.eval(dat1)
+    for i in range(len(output)):
+        print(output[i])
+
 
 data=LoadData("train.txt",True)
 model1=train(data)
 md=model1.model
 md.save(".\\Model\\model.cmf")
+print("========================")
 data1=LoadData("test.txt",False)
-test(data1,model1)
+test(data1)
+data2=LoadData("test.txt",False)
+feval(data2)
 g=input("Нажмите любую клавишу")
-

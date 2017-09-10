@@ -9,7 +9,7 @@ def LoadData(fn,is_training):
     dataout=cntk.io.StreamDef("labels",2)
     dataall=cntk.io.StreamDefs(features=datainp,labels=dataout)
     st=cntk.io.CTFDeserializer(n,dataall)
-    mbs=cntk.io.MinibatchSource(st,randomize = is_training,max_sweeps = cntk.io.INFINITELY_REPEAT if is_training else 1)
+    mbs=cntk.io.MinibatchSource(st,randomize = False,max_sweeps = cntk.io.INFINITELY_REPEAT if is_training else 1)
     return mbs
 
 def nn(x):
@@ -27,7 +27,7 @@ def train(streamf):
     net=nn(input_var)
     loss = cntk.losses.squared_error(net,label_var)
     error=cntk.squared_error(net,label_var)
-    learning_rate=0.0005
+    learning_rate=0.01
     lr_schedule=cntk.learning_rate_schedule(learning_rate,cntk.UnitType.minibatch)
     momentum_time_constant = cntk.momentum_as_time_constant_schedule(140 / -np.math.log(0.9))
     learner=cntk.fsadagrad(net.parameters,lr=lr_schedule,momentum = momentum_time_constant,unit_gain = True)
@@ -38,7 +38,7 @@ def train(streamf):
         label_var : streamf.streams.labels
         
     }
-    minibatch_size =  512
+    minibatch_size =  1024
     max_epochs = 200
     epoch_size = 48985
     t = 0
