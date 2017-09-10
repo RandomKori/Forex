@@ -21,13 +21,13 @@ def nn(x):
     return m
 
 input_var = cntk.input_variable(30,np.float32, name = 'features',dynamic_axes=cntk.axis.Axis.default_input_variable_dynamic_axes())
-label_var=cntk.input_variable(3,np.float32, name = 'labels')
+label_var=cntk.input_variable(3,np.float32, name = 'labels',is_sparse=True)
 
 
 def train(streamf):
     global net
     minibatch_size =  1024
-    max_epochs = 200
+    max_epochs = 2000
     epoch_size = 48985
     net=nn(input_var)
     loss = cntk.losses.cross_entropy_with_softmax(net,label_var)
