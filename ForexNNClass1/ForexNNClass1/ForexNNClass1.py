@@ -18,21 +18,21 @@ def LoadData(fn,is_training):
 def nn(s,h,l,v):
     m=cntk.layers.Stabilizer()(s)
     for i in range(0,5):
-        m=cntk.layers.Recurrence(cntk.layers.LSTM(50,activation=cntk.tanh,init_bias=0.1,enable_self_stabilization=True))(m)
+        m=cntk.layers.Recurrence(cntk.layers.LSTM(50,activation=cntk.sigmoid,init_bias=0.1,enable_self_stabilization=True))(m)
     m=cntk.splice(m,h)
     m=cntk.layers.Stabilizer()(m)
     for i in range(0,5):
-        m1=cntk.layers.Recurrence(cntk.layers.LSTM(50,activation=cntk.tanh,init_bias=0.1,enable_self_stabilization=True))(m)
+        m1=cntk.layers.Recurrence(cntk.layers.LSTM(50,activation=cntk.sigmoid,init_bias=0.1,enable_self_stabilization=True))(m)
     m=cntk.splice(m,l)
     m=cntk.layers.Stabilizer()(m)
     for i in range(0,5):
-        m2=cntk.layers.Recurrence(cntk.layers.LSTM(50,activation=cntk.tanh,init_bias=0.1,enable_self_stabilization=True))(m)
+        m2=cntk.layers.Recurrence(cntk.layers.LSTM(50,activation=cntk.sigmoid,init_bias=0.1,enable_self_stabilization=True))(m)
     m=cntk.splice(m,v)
     m=cntk.layers.Stabilizer()(m)
     for i in range(0,5):
-        m=cntk.layers.Recurrence(cntk.layers.LSTM(50,activation=cntk.tanh,init_bias=0.1,enable_self_stabilization=True))(m)
+        m=cntk.layers.Recurrence(cntk.layers.LSTM(50,activation=cntk.sigmoid,init_bias=0.1,enable_self_stabilization=True))(m)
     m=cntk.sequence.last(m)
-    m=cntk.layers.Dense(3)(m)
+    m=cntk.layers.Dense(3,activation=cntk.softmax)(m)
     return m
 
 input_s = cntk.input_variable(10,np.float32, name = 'spread',dynamic_axes=cntk.axis.Axis.default_input_variable_dynamic_axes())
