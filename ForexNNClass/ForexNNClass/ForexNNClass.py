@@ -15,9 +15,9 @@ def LoadData(fn,is_training):
 def nn(x):
     m=cntk.layers.Stabilizer()(x)
     for i in range(0,10):
-        m=cntk.layers.Recurrence(cntk.layers.LSTM(100,activation=cntk.tanh,init_bias=0.1,enable_self_stabilization=True))(m)
+        m=cntk.layers.Recurrence(cntk.layers.LSTM(100,activation=cntk.sigmoid,init_bias=0.1,enable_self_stabilization=True))(m)
     m=cntk.sequence.last(m)
-    m=cntk.layers.Dense(3)(m)
+    m=cntk.layers.Dense(3,activation=cntk.softmax)(m)
     return m
 
 input_var = cntk.input_variable(40,np.float32, name = 'features',dynamic_axes=cntk.axis.Axis.default_input_variable_dynamic_axes())
