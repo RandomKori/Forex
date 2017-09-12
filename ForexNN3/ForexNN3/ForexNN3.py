@@ -27,7 +27,7 @@ def train(streamf):
     net=nn(input_var)
     loss = cntk.losses.squared_error(net,label_var)
     error=cntk.squared_error(net,label_var)
-    learning_rate=0.005
+    learning_rate=0.01
     lr_schedule=cntk.learning_rate_schedule(learning_rate,cntk.UnitType.minibatch)
     momentum_time_constant = cntk.momentum_as_time_constant_schedule(140 / -np.math.log(0.9))
     learner=cntk.fsadagrad(net.parameters,lr=lr_schedule,momentum = momentum_time_constant,unit_gain = True)
@@ -39,7 +39,7 @@ def train(streamf):
         
     }
     minibatch_size =  512
-    max_epochs = 400
+    max_epochs = 800
     epoch_size = 48985
     t = 0
     for epoch in range(max_epochs):
