@@ -20,7 +20,7 @@ void LoadModel(wchar_t* s)
 void EvalModel(double* inp, double* out)
 {
 	std::vector<float> v(30);
-	const std::vector<float> v1(3);
+	const std::vector<float> v1(4);
 	std::vector<std::vector<float>> v2(1, v1);
 	for (int i = 0; i < 30; i++)
 		v[i] = (float)(inp[i]);
@@ -35,7 +35,7 @@ void EvalModel(double* inp, double* out)
 	model->Evaluate(inputLayer, outputLayer);
 	auto outs1 = outputLayer[var2];
 	outs1->CopyVariableValueTo(var2, v2);
-	for (int i = 0; i < 3; i++)
+	for (int i = 0; i < 4; i++)
 		out[i] = v2[0][i];
 }
 

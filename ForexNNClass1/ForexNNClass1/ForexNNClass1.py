@@ -5,42 +5,33 @@ from cntk.ops.functions import load_model
 
 def LoadData(fn,is_training):
     n=".\\Data\\"+fn
-    datainps=cntk.io.StreamDef("spread",10)
-    datainph=cntk.io.StreamDef("high",10)
-    datainpl=cntk.io.StreamDef("low",10)
-    dataout=cntk.io.StreamDef("labels",3,is_sparse=True)
-    dataall=cntk.io.StreamDefs(spread=datainps,high=datainph,low=datainpl,labels=dataout)
+    datainp=cntk.io.StreamDef("features",30)
+    dataout=cntk.io.StreamDef("labels",4,is_sparse=True)
+    dataall=cntk.io.StreamDefs(features=datainp,labels=dataout)
     st=cntk.io.CTFDeserializer(n,dataall)
-    mbs=cntk.io.MinibatchSource(st,randomize = is_training,max_sweeps = cntk.io.INFINITELY_REPEAT if is_training else 1)
+    mbs=cntk.io.MinibatchSource(st, randomize = False, max_sweeps = cntk.io.INFINITELY_REPEAT if is_training else 1)
     return mbs
 
-def nn(s,h,l):
-    m=cntk.layers.Recurrence(cntk.layers.RNNStep(50,activation=cntk.sigmoid,init_bias=0.1))(s)
-    for i in range(0,5):
-        m=cntk.layers.Recurrence(cntk.layers.RNNStep(50,activation=cntk.sigmoid,init_bias=0.1))(m)
-    m=cntk.splice(m,h)
-    m=cntk.layers.Recurrence(cntk.layers.RNNStep(50,activation=cntk.sigmoid,init_bias=0.1))(m)
-    for i in range(0,5):
-        m1=cntk.layers.Recurrence(cntk.layers.RNNStep(50,activation=cntk.sigmoid,init_bias=0.1))(m)
-    m=cntk.splice(m,l)
-    m=cntk.layers.Recurrence(cntk.layers.RNNStep(50,activation=cntk.sigmoid,init_bias=0.1))(m)
-    for i in range(0,5):
-        m2=cntk.layers.Recurrence(cntk.layers.RNNStep(50,activation=cntk.sigmoid,init_bias=0.1))(m)
-    m=cntk.layers.Recurrence(cntk.layers.RNNStep(3,activation=cntk.softmax))(m)
+def nn(x):
+    m=cntk.layers.Recurrence(cntk.layers.GRU(60,activation=cntk.sigmoid,init_bias=0.1))(x)
+    m=cntk.layers.BatchNormalization()(m)
+    for i in range(0,10):
+        m=cntk.layers.Recurrence(cntk.layers.GRU(60,activation=cntk.sigmoid,init_bias=0.1))(m)
+        m=cntk.layers.BatchNormalization()(m)
+    m=cntk.sequence.last(m)
+    m=cntk.layers.Dense(4,activation=cntk.softmax)(m)
     return m
 
-input_s = cntk.input_variable(10,np.float32, name = 'spread',dynamic_axes=cntk.axis.Axis.default_input_variable_dynamic_axes())
-input_h = cntk.input_variable(10,np.float32, name = 'high',dynamic_axes=cntk.axis.Axis.default_input_variable_dynamic_axes())
-input_l = cntk.input_variable(10,np.float32, name = 'low',dynamic_axes=cntk.axis.Axis.default_input_variable_dynamic_axes())
-label_var=cntk.input_variable(3,np.float32, name = 'labels',is_sparse=True,dynamic_axes=cntk.axis.Axis.default_input_variable_dynamic_axes())
+input_var = cntk.input_variable(30,np.float32, name = 'features',dynamic_axes=cntk.axis.Axis.default_input_variable_dynamic_axes())
+label_var=cntk.input_variable(4,np.float32, name = 'labels')
 
 
 def train(streamf):
     global net
     minibatch_size =  1024
-    max_epochs = 2000
+    max_epochs = 200
     epoch_size = 48985
-    net=nn(input_s,input_h,input_l)
+    net=nn(input_var)
     loss = cntk.losses.cross_entropy_with_softmax(net,label_var)
     error=cntk.classification_error(net,label_var)
     lr_per_sample = [3e-4]*4+[1.5e-4]
@@ -51,9 +42,7 @@ def train(streamf):
     progres=cntk.logging.ProgressPrinter(0)
     trainer=cntk.Trainer(net,(loss,error),[learner],progress_writers=progres)
     input_map={
-        input_s : streamf.streams.spread,
-        input_h : streamf.streams.high,
-        input_l : streamf.streams.low,
+        input_var : streamf.streams.features,
         label_var : streamf.streams.labels
         
     }
@@ -69,9 +58,7 @@ def train(streamf):
 
 def test(streamf):
     input_map={
-        input_s : streamf.streams.spread,
-        input_h : streamf.streams.high,
-        input_l : streamf.streams.low,
+        input_var : streamf.streams.features,
         label_var : streamf.streams.labels   
     }
     minibatch_size =  32
@@ -88,9 +75,7 @@ def test(streamf):
 def feval(streamf):
     z=load_model(".\\Model\\model.cmf")
     input_map={
-        z.arguments[0] : streamf.streams.spread, 
-        z.arguments[1] : streamf.streams.high,
-        z.arguments[2] : streamf.streams.low,
+        z.arguments[0] : streamf.streams.features,     
     }
     dat1=streamf.next_minibatch(1000,input_map = input_map)
     output=z.eval(dat1)

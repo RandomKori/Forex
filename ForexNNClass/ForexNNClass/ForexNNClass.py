@@ -6,7 +6,7 @@ from cntk.ops.functions import load_model
 def LoadData(fn,is_training):
     n=".\\Data\\"+fn
     datainp=cntk.io.StreamDef("features",30)
-    dataout=cntk.io.StreamDef("labels",3)
+    dataout=cntk.io.StreamDef("labels",4)
     dataall=cntk.io.StreamDefs(features=datainp,labels=dataout)
     st=cntk.io.CTFDeserializer(n,dataall)
     mbs=cntk.io.MinibatchSource(st, randomize = False, max_sweeps = cntk.io.INFINITELY_REPEAT if is_training else 1)
@@ -18,11 +18,11 @@ def nn(x):
     for i in range(0,10):
         m=cntk.layers.Recurrence(cntk.layers.GRU(60,activation=cntk.sigmoid,init_bias=0.1))(m)
         m=cntk.layers.BatchNormalization()(m)
-    m=cntk.layers.Recurrence(cntk.layers.GRU(3,activation=cntk.sigmoid))(m)
+    m=cntk.layers.Recurrence(cntk.layers.GRU(4,activation=cntk.sigmoid))(m)
     return m
 
 input_var = cntk.input_variable(30,np.float32, name = 'features',dynamic_axes=cntk.axis.Axis.default_input_variable_dynamic_axes())
-label_var=cntk.input_variable(3,np.float32, name = 'labels',dynamic_axes=cntk.axis.Axis.default_input_variable_dynamic_axes())
+label_var=cntk.input_variable(4,np.float32, name = 'labels',dynamic_axes=cntk.axis.Axis.default_input_variable_dynamic_axes())
 
 
 def train(streamf):
@@ -36,7 +36,7 @@ def train(streamf):
     lr_per_sample = [3e-4]*4+[1.5e-4]
     lr_per_minibatch = [lr * minibatch_size for lr in lr_per_sample]
     lr_schedule=cntk.learning_rate_schedule(lr_per_minibatch,cntk.UnitType.minibatch)
-    momentum_as_time_constant = cntk.momentum_as_time_constant_schedule(700)
+    momentum_as_time_constant = cntk.momentum_as_time_constant_schedule(1400)
     learner=cntk.fsadagrad(net.parameters,lr_schedule,momentum_as_time_constant)
     progres=cntk.logging.ProgressPrinter(0)
     trainer=cntk.Trainer(net,(loss,error),[learner],progress_writers=progres)
