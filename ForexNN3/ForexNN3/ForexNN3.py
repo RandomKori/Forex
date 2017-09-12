@@ -13,7 +13,7 @@ def LoadData(fn,is_training):
     return mbs
 
 def nn(x):
-    m=cntk.layers.Stabilizer()(x)
+    m=cntk.layers.Recurrence(cntk.layers.RNNStep(45,activation=cntk.tanh))(x)
     for i in range(0,20):
          m=cntk.layers.Recurrence(cntk.layers.RNNStep(45,activation=cntk.tanh))(m)
     m=cntk.layers.Recurrence(cntk.layers.RNNStep(2,activation=cntk.tanh))(m)
@@ -38,7 +38,7 @@ def train(streamf):
         label_var : streamf.streams.labels
         
     }
-    minibatch_size =  1024
+    minibatch_size =  512
     max_epochs = 200
     epoch_size = 48985
     t = 0
