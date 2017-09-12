@@ -18,7 +18,7 @@ def nn(x):
     for i in range(0,10):
         m=cntk.layers.Recurrence(cntk.layers.GRU(100,activation=cntk.sigmoid,init_bias=0.1))(m)
         m=cntk.layers.BatchNormalization()(m)
-    m=cntk.layers.Recurrence(cntk.layers.GRU(3,activation=cntk.softmax))(m)
+    m=cntk.layers.Recurrence(cntk.layers.GRU(3,activation=cntk.sigmoid))(m)
     return m
 
 input_var = cntk.input_variable(30,np.float32, name = 'features',dynamic_axes=cntk.axis.Axis.default_input_variable_dynamic_axes())
