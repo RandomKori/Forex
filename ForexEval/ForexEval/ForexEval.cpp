@@ -26,7 +26,7 @@ void EvalModel(double* inp, double* out)
 		v[i] = (float)(inp[i]);
 	ValuePtr inps;
 	ValuePtr outs;
-	DeviceDescriptor d = DeviceDescriptor::UseDefaultDevice();
+	DeviceDescriptor d = DeviceDescriptor::GPUDevice(0);
 	auto var1 = model->Arguments();
 	auto var2 = model->Output();
 	inps = Value::CreateBatch(NDShape({ 30 }), v, d, false);

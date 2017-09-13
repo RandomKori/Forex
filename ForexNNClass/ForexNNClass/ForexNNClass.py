@@ -13,12 +13,12 @@ def LoadData(fn,is_training):
     return mbs
 
 def nn(x):
-    m=cntk.layers.Recurrence(cntk.layers.GRU(60,activation=cntk.sigmoid,init_bias=0.1))(x)
+    m=cntk.layers.Recurrence(cntk.layers.RNNStep(60,activation=cntk.sigmoid,init_bias=0.1))(x)
     m=cntk.layers.BatchNormalization()(m)
     for i in range(0,10):
-        m=cntk.layers.Recurrence(cntk.layers.GRU(60,activation=cntk.sigmoid,init_bias=0.1))(m)
+        m=cntk.layers.Recurrence(cntk.layers.RNNStep(60,activation=cntk.sigmoid,init_bias=0.1))(m)
         m=cntk.layers.BatchNormalization()(m)
-    m=cntk.layers.Recurrence(cntk.layers.GRU(4,activation=cntk.sigmoid))(m)
+    m=cntk.layers.Recurrence(cntk.layers.RNNStep(4,activation=cntk.sigmoid))(m)
     return m
 
 input_var = cntk.input_variable(30,np.float32, name = 'features',dynamic_axes=cntk.axis.Axis.default_input_variable_dynamic_axes())
