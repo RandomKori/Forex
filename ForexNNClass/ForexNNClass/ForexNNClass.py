@@ -15,7 +15,7 @@ def LoadData(fn,is_training):
 def nn(x):
     m=cntk.layers.Recurrence(cntk.layers.GRU(60,activation=cntk.sigmoid,init_bias=0.1))(x)
     m=cntk.layers.BatchNormalization()(m)
-    for i in range(0,3):
+    for i in range(0,5):
         m=cntk.layers.Recurrence(cntk.layers.GRU(60,activation=cntk.sigmoid,init_bias=0.1))(m)
         m=cntk.layers.BatchNormalization()(m)
     m=cntk.layers.Dropout(0.2)(m)
