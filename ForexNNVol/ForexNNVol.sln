@@ -1,0 +1,23 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 15
+VisualStudioVersion = 15.0.26730.15
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{888888A0-9F3D-457C-B088-3A5042F75D52}") = "ForexNNVol", "ForexNNVol\ForexNNVol.pyproj", "{E7A16F56-AFFE-42D2-B42C-C960F0E83A2A}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{E7A16F56-AFFE-42D2-B42C-C960F0E83A2A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E7A16F56-AFFE-42D2-B42C-C960F0E83A2A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {133E203D-DE91-4051-9C3E-B8C7D7F637C5}
+	EndGlobalSection
+EndGlobal

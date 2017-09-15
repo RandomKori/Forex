@@ -1,11 +1,11 @@
-from __future__ import print_function
+﻿from __future__ import print_function
 import numpy as np
 import cntk
 from cntk.ops.functions import load_model
 
 def LoadData(fn,is_training):
     n=".\\Data\\"+fn
-    datainp=cntk.io.StreamDef("features",30)
+    datainp=cntk.io.StreamDef("features",40)
     dataout=cntk.io.StreamDef("labels",4)
     dataall=cntk.io.StreamDefs(features=datainp,labels=dataout)
     st=cntk.io.CTFDeserializer(n,dataall)
@@ -14,16 +14,14 @@ def LoadData(fn,is_training):
 
 def nn(x):
     m=cntk.layers.Stabilizer()(x)
-    m=cntk.layers.Recurrence(cntk.layers.GRU(60,activation=cntk.sigmoid,init_bias=0.1))(m)
-    m=cntk.layers.BatchNormalization()(m)
     for i in range(0,10):
         m=cntk.layers.Recurrence(cntk.layers.GRU(60,activation=cntk.sigmoid,init_bias=0.1))(m)
         m=cntk.layers.BatchNormalization()(m)
     m=cntk.layers.Dropout(0.2)(m)
-    m=cntk.layers.Recurrence(cntk.layers.GRU(4,activation=cntk.sigmoid,init_bias=0.1))(m)
+    m=cntk.layers.Recurrence(cntk.layers.GRU(4,activation=cntk.sigmoid))(m)
     return m
 
-input_var = cntk.input_variable(30,np.float32, name = 'features',dynamic_axes=cntk.axis.Axis.default_input_variable_dynamic_axes())
+input_var = cntk.input_variable(40,np.float32, name = 'features',dynamic_axes=cntk.axis.Axis.default_input_variable_dynamic_axes())
 label_var=cntk.input_variable(4,np.float32, name = 'labels',dynamic_axes=cntk.axis.Axis.default_input_variable_dynamic_axes())
 
 
