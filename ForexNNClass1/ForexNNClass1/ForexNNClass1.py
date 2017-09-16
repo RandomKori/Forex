@@ -6,24 +6,26 @@ from cntk.ops.functions import load_model
 def LoadData(fn,is_training):
     n=".\\Data\\"+fn
     datainp=cntk.io.StreamDef("features",30)
-    dataout=cntk.io.StreamDef("labels",4,is_sparse=True)
+    dataout=cntk.io.StreamDef("labels",4)
     dataall=cntk.io.StreamDefs(features=datainp,labels=dataout)
     st=cntk.io.CTFDeserializer(n,dataall)
-    mbs=cntk.io.MinibatchSource(st, randomize = False, max_sweeps = cntk.io.INFINITELY_REPEAT if is_training else 1)
+    mbs=cntk.io.MinibatchSource(st, randomize = is_training, max_sweeps = cntk.io.INFINITELY_REPEAT if is_training else 1)
     return mbs
 
 def nn(x):
-    m=cntk.layers.Recurrence(cntk.layers.GRU(60,activation=cntk.sigmoid,init_bias=0.1))(x)
-    m=cntk.layers.BatchNormalization()(m)
-    for i in range(0,10):
-        m=cntk.layers.Recurrence(cntk.layers.GRU(60,activation=cntk.sigmoid,init_bias=0.1))(m)
+    m=cntk.layers.Stabilizer()(x)
+    for i in range(0,3):
+        m=cntk.layers.Recurrence(cntk.layers.RNNStep(60,activation=cntk.sigmoid))(m)
         m=cntk.layers.BatchNormalization()(m)
-    m=cntk.sequence.last(m)
-    m=cntk.layers.Dense(4,activation=cntk.softmax)(m)
+        m=cntk.layers.Recurrence(cntk.layers.RNNStep(60,activation=cntk.sigmoid))(m)
+        m=cntk.layers.BatchNormalization()(m)
+        m=cntk.layers.ResNetBlock(cntk.layers.Recurrence(cntk.layers.RNNStep(60,activation=cntk.sigmoid)),"")(m)
+        m=cntk.layers.BatchNormalization()(m)
+    m=cntk.layers.Recurrence(cntk.layers.RNNStep(4,activation=cntk.sigmoid))(m)
     return m
 
 input_var = cntk.input_variable(30,np.float32, name = 'features',dynamic_axes=cntk.axis.Axis.default_input_variable_dynamic_axes())
-label_var=cntk.input_variable(4, name = 'labels')
+label_var=cntk.input_variable(4,np.float32, name = 'labels',dynamic_axes=cntk.axis.Axis.default_input_variable_dynamic_axes())
 
 
 def train(streamf):
@@ -32,12 +34,12 @@ def train(streamf):
     max_epochs = 2000
     epoch_size = 48985
     net=nn(input_var)
-    loss = cntk.losses.cross_entropy_with_softmax(net,label_var)
+    loss = cntk.losses.binary_cross_entropy(net,label_var)
     error=cntk.classification_error(net,label_var)
     lr_per_sample = [3e-4]*4+[1.5e-4]
     lr_per_minibatch = [lr * minibatch_size for lr in lr_per_sample]
     lr_schedule=cntk.learning_rate_schedule(lr_per_minibatch,cntk.UnitType.minibatch)
-    momentum_as_time_constant = cntk.momentum_as_time_constant_schedule(700)
+    momentum_as_time_constant = cntk.momentum_as_time_constant_schedule(200)
     learner=cntk.fsadagrad(net.parameters,lr_schedule,momentum_as_time_constant)
     progres=cntk.logging.ProgressPrinter(0)
     trainer=cntk.Trainer(net,(loss,error),[learner],progress_writers=progres)
@@ -62,7 +64,7 @@ def test(streamf):
         label_var : streamf.streams.labels   
     }
     minibatch_size =  32
-    loss = cntk.losses.cross_entropy_with_softmax(net,label_var)
+    loss = cntk.losses.binary_cross_entropy(net,label_var)
     progress_printer = cntk.logging.ProgressPrinter(tag='Evaluation', num_epochs=0)
     evaluator = cntk.eval.Evaluator(loss, progress_printer)
     while True:
