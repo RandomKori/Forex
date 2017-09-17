@@ -1,4 +1,4 @@
-﻿from __future__ import print_function
+from __future__ import print_function
 import numpy as np
 import cntk
 from cntk.ops.functions import load_model
@@ -13,19 +13,16 @@ def LoadData(fn,is_training):
     return mbs
 
 def nn(x):
-    m=cntk.layers.Stabilizer()(x)
-    for i in range(0,10):
-        m=cntk.layers.Recurrence(cntk.layers.LSTM(60,activation=cntk.sigmoid))(m)
-        m=cntk.layers.BatchNormalization()(m)
-        m=cntk.layers.Recurrence(cntk.layers.LSTM(60,activation=cntk.sigmoid))(m)
-        m=cntk.layers.BatchNormalization()(m)
-        m=cntk.layers.ResNetBlock(cntk.layers.Recurrence(cntk.layers.LSTM(60,activation=cntk.sigmoid)),"")(m)
-        m=cntk.layers.BatchNormalization()(m)
-    m=cntk.layers.Recurrence(cntk.layers.LSTM(4,activation=cntk.sigmoid))(m)
+    m=cntk.layers.Convolution1D(15,5,activation=cntk.sigmoid,reduction_rank=0)(x)
+    m=cntk.layers.Dense(100,activation=cntk.sigmoid,init_bias=0.1)(m)
+    m=cntk.layers.BatchNormalization()(m)
+    m=cntk.layers.Dense(100,activation=cntk.sigmoid,init_bias=0.1)(m)
+    m=cntk.layers.BatchNormalization()(m)
+    m=cntk.layers.Dense(4,activation=cntk.sigmoid,init_bias=0.1)(m)
     return m
 
-input_var = cntk.input_variable(30,np.float32, name = 'features',dynamic_axes=cntk.axis.Axis.default_input_variable_dynamic_axes())
-label_var=cntk.input_variable(4,np.float32, name = 'labels',dynamic_axes=cntk.axis.Axis.default_input_variable_dynamic_axes())
+input_var = cntk.input_variable(30,np.float32, name = 'features')
+label_var=cntk.input_variable(4,np.float32, name = 'labels')
 
 
 def train(streamf):
@@ -95,3 +92,4 @@ test(data1)
 data2=LoadData("test.txt",False)
 feval(data2)
 g=input("Нажмите любую клавишу")
+
