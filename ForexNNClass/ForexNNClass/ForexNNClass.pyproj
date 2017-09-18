@@ -23,6 +23,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="ForexNNClass.py" />
+    <Compile Include="ForexNNClassD.py" />
     <Compile Include="ForexNNClassB.py" />
     <Compile Include="ForexNNClassC.py" />
   </ItemGroup>
