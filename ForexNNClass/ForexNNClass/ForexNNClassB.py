@@ -21,7 +21,7 @@ def nn(x):
         m=cntk.layers.BatchNormalization()(m)
     m=cntk.layers.Recurrence(cntk.layers.GRU(60,activation=cntk.sigmoid,init_bias=0.1),go_backwards=True)(m)
     m=cntk.layers.BatchNormalization()(m)
-    m=cntk.layers.Dropout(0.2)(m)
+    m=cntk.layers.Dropout(0.5)(m)
     m=cntk.layers.Recurrence(cntk.layers.GRU(4,activation=cntk.sigmoid,init_bias=0.1))(m)
     return m
 

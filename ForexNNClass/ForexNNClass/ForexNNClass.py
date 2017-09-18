@@ -14,13 +14,10 @@ def LoadData(fn,is_training):
 
 def nn(x):
     m=cntk.layers.Stabilizer()(x)
-    m=cntk.layers.Recurrence(cntk.layers.GRU(60,activation=cntk.sigmoid,init_bias=0.1))(m)
-    m=cntk.layers.BatchNormalization()(m)
-    for i in range(0,10):
-        m=cntk.layers.Recurrence(cntk.layers.GRU(60,activation=cntk.sigmoid,init_bias=0.1))(m)
+    for i in range(0,7):
+        m=cntk.layers.Recurrence(cntk.layers.LSTM(60,activation=cntk.sigmoid,init_bias=0.1,use_peepholes=True))(m)
         m=cntk.layers.BatchNormalization()(m)
-    m=cntk.layers.Dropout(0.2)(m)
-    m=cntk.layers.Recurrence(cntk.layers.GRU(4,activation=cntk.sigmoid,init_bias=0.1))(m)
+    m=cntk.layers.Recurrence(cntk.layers.LSTM(4,activation=cntk.sigmoid,init_bias=0.1))(m)
     return m
 
 input_var = cntk.input_variable(30,np.float32, name = 'features',dynamic_axes=cntk.axis.Axis.default_input_variable_dynamic_axes())
@@ -39,7 +36,7 @@ def train(streamf):
     lr_per_minibatch = [lr * minibatch_size for lr in lr_per_sample]
     lr_schedule=cntk.learning_rate_schedule(lr_per_minibatch,cntk.UnitType.minibatch)
     momentum_as_time_constant = cntk.momentum_as_time_constant_schedule(200)
-    learner=cntk.fsadagrad(net.parameters,lr_schedule,momentum_as_time_constant)
+    learner=cntk.fsadagrad(net.parameters,lr_schedule,momentum_as_time_constant,l2_regularization_weight=0.0002)
     progres=cntk.logging.ProgressPrinter(0)
     trainer=cntk.Trainer(net,(loss,error),[learner],progress_writers=progres)
     input_map={
